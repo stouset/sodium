@@ -50,6 +50,48 @@ class Sodium::Box
     Sodium::Util.unpad(message, self.implementation::ZEROBYTES)
   end
 
+  def beforenm
+    shared_key = Sodium::Util.buffer(self.implementation::BEFORENMBYTES)
+
+    self.implementation.nacl_beforenm(
+      shared_key, @public_key, @secret_key
+    ) or raise Sodium::CryptoError, 'failed to create a shared key'
+
+    shared_key
+  end
+
+  def afternm(shared_key, message, nonce)
+    shared_key = _shared_key(shared_key)
+    message    = _message(message)
+    nonce      = _nonce(nonce)
+    ciphertext = Sodium::Util.buffer(message.length)
+
+    self.implementation.nacl_afternm(
+      ciphertext,
+      message, message.length,
+      nonce,
+      shared_key
+    ) or raise Sodium::CryptoError, 'failed to close the box'
+
+    Sodium::Util.unpad(ciphertext, self.implementation::BOXZEROBYTES)
+  end
+
+  def afternm_open(shared_key, ciphertext, nonce)
+    shared_key = _shared_key(shared_key)
+    ciphertext = _ciphertext(ciphertext)
+    nonce      = _nonce(nonce)
+    message    = Sodium::Util.buffer(ciphertext.length)
+
+    self.implementation.nacl_afternm_open(
+      message,
+      ciphertext, ciphertext.length,
+      nonce,
+      shared_key
+    ) or raise Sodium::CryptoError, 'failed to open the box'
+
+    Sodium::Util.unpad(message, self.implementation::ZEROBYTES)
+  end
+
   private
 
   def _public_key(k)
@@ -58,6 +100,10 @@ class Sodium::Box
 
   def _secret_key(k)
     Sodium::Util.assert_length(k.to_str, self.implementation::SECRETKEYBYTES, 'secret key')
+  end
+
+  def _shared_key(k)
+    Sodium::Util.assert_length(k.to_str, self.implementation::BEFORENMBYTES, 'secret key')
   end
 
   def _message(m)

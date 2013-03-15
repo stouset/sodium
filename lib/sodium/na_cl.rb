@@ -77,7 +77,7 @@ module Sodium::NaCl
     methods[:open]         = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ]
     methods[:keypair]      = [ :pointer, :pointer, :int ]
     methods[:beforenm]     = [ :pointer, :pointer, :pointer, :int ]
-    methods[:afternm]      = [ :pointer, :pointer, :ulong_long, :pointer, :pointer ]
+    methods[:afternm]      = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ]
     methods[:open_afternm] = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ]
   end
 end
