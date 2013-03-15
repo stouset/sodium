@@ -1,7 +1,3 @@
-require 'rake/testtask'
-
-Rake::TestTask.new do |t|
-  t.pattern = "test/**/test_*.rb"
-end
+Dir['tasks/**/*.rake'].each {|task| load task }
 
 task :default => :test
