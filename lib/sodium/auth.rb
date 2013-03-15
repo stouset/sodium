@@ -1,7 +1,7 @@
 require_relative '../sodium'
 
 class Sodium::Auth
-  extend Sodium::Delegate.for(self)
+  include Sodium::Delegate.for(self)
 
   def self.auth(key, message)
     self.new(key).auth(message)
@@ -16,33 +16,29 @@ class Sodium::Auth
   end
 
   def auth(message)
-    authenticator = Sodium::Util.buffer(self.class::BYTES)
     message       = _message(message)
+    authenticator = Sodium::Util.buffer(self.class::BYTES)
 
-    self.nacl_impl(authenticator, message, message.length, @key)
+    self.implementation.nacl(authenticator, message, message.length, @key)
 
     authenticator
   end
 
   def verify(message, authenticator)
-    authenticator = _authenticator(authenticator)
     message       = _message(message)
+    authenticator = _authenticator(authenticator)
 
-    self.nacl_verify(authenticator, message, message.length, @key)
-  end
-
-  def primitive
-    self.class::PRIMITIVE
+    self.implementation.nacl_verify(authenticator, message, message.length, @key)
   end
 
   private
 
   def _key(k)
-    Sodium::Util.ensure_length(k.to_str, self.class::KEYBYTES, 'key')
+    Sodium::Util.assert_length(k.to_str, self.implementation::KEYBYTES, 'key')
   end
 
   def _authenticator(a)
-    Sodium::Util.ensure_length(a.to_str, self.class::KEYBYTES, 'authenticator')
+    Sodium::Util.assert_length(a.to_str, self.implementation::KEYBYTES, 'authenticator')
   end
 
   def _message(m)

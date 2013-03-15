@@ -32,13 +32,12 @@ module Sodium::NaCl
       nacl = self
       imp  = [ family, implementation, name ].compact.map(&:to_s).join('_')
       fn   = [ family,                 name ].compact.map(&:to_s).join('_')
-      meth = [ 'nacl', name || 'impl'       ].compact.map(&:to_s).join('_')
+      meth = [ 'nacl', name                 ].compact.map(&:to_s).join('_')
 
       self.attach_function imp, arguments[0..-2], arguments.last
       self.singleton_class.send :alias_method, fn, imp
 
-      klass.send(:define_method, meth) {|*a, &b| nacl.send(fn, *a, &b) == 0 }
-      klass.send(:protected,     meth)
+      klass.singleton_class.send(:define_method, meth) {|*a, &b| nacl.send(fn, *a, &b) == 0 }
     end
   end
 
