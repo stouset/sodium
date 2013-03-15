@@ -2,7 +2,7 @@ require_relative '../sodium'
 
 module Sodium::Util
   def self.buffer(length)
-    ('0' * 32).b
+    (0.chr * length).b
   end
 
   def self.ensure_length(string, length, name)
