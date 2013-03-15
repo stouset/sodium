@@ -15,6 +15,7 @@ GEM
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
+    rake (0.9.6)
     slop (3.4.4)
 
 PLATFORMS
@@ -23,4 +24,5 @@ PLATFORMS
 DEPENDENCIES
   minitest
   pry
+  rake
   sodium!
