@@ -4,4 +4,11 @@ module Sodium::Util
   def self.buffer(length)
     ('0' * 32).b
   end
+
+  def self.ensure_length(string, length, name)
+    raise ArgumentError, "#{name} must be exactly #{length} bytes long" unless
+      string.bytesize == length
+
+    string
+  end
 end

@@ -3,30 +3,49 @@ require_relative '../sodium'
 class Sodium::Auth
   extend Sodium::Delegate.for(self)
 
-  def initialize(key)
-    _verify_key_length!(key, self.class::KEYBYTES)
+  def self.auth(key, message)
+    self.new(key).auth(message)
+  end
 
-    self.key = key.to_str
+  def self.verify(key, message, authenticator)
+    self.new(key).verify(message, authenticator)
+  end
+
+  def initialize(key)
+    @key = _key(key)
   end
 
   def auth(message)
-    Sodium::Util.buffer(self.class::BYTES).tap do |authenticator|
-      self.nacl_impl(authenticator, message, message.length, key)
-    end
+    authenticator = Sodium::Util.buffer(self.class::BYTES)
+    message       = _message(message)
+
+    self.nacl_impl(authenticator, message, message.length, @key)
+
+    authenticator
   end
 
   def verify(message, authenticator)
-    self.nacl_verify(authenticator, message, message.length, key)
+    authenticator = _authenticator(authenticator)
+    message       = _message(message)
+
+    self.nacl_verify(authenticator, message, message.length, @key)
   end
 
-  protected
-
-  attr_accessor :key
+  def primitive
+    self.class::PRIMITIVE
+  end
 
   private
 
-  def _verify_key_length!(key, bytes)
-    raise ArgumentError, "key must be #{bytes} bytes long" unless
-      key.bytesize == bytes
+  def _key(k)
+    Sodium::Util.ensure_length(k.to_str, self.class::KEYBYTES, 'key')
+  end
+
+  def _authenticator(a)
+    Sodium::Util.ensure_length(a.to_str, self.class::KEYBYTES, 'authenticator')
+  end
+
+  def _message(m)
+    m.to_str
   end
 end
