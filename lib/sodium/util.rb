@@ -14,7 +14,7 @@ module Sodium::Util
   end
 
   def self.assert_length(string, length, name)
-    raise ArgumentError, "#{name} must be exactly #{length} bytes long" unless
+    raise Sodium::LengthError, "#{name} must be exactly #{length} bytes long" unless
       string.bytesize == length
 
     string

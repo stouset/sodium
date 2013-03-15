@@ -1,4 +1,7 @@
 module Sodium
+  class Error       < ::StandardError; end
+  class LengthError < Error;           end
+  class CryptoError < Error;           end
 end
 
 require_relative 'sodium/delegate'

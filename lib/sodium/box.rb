@@ -7,7 +7,8 @@ class Sodium::Box
     public_key = Sodium::Util.buffer(self.implementation::PUBLICKEYBYTES)
     secret_key = Sodium::Util.buffer(self.implementation::SECRETKEYBYTES)
 
-    self.implementation.nacl_keypair(public_key, secret_key)
+    self.implementation.nacl_keypair(public_key, secret_key) or
+      raise Sodium::CryptoError, 'failed to generate a keypair'
 
     return secret_key, public_key
   end
@@ -22,11 +23,13 @@ class Sodium::Box
     nonce      = _nonce(nonce)
     ciphertext = Sodium::Util.buffer(message.length)
 
-    self.implementation.nacl ciphertext,
+    self.implementation.nacl(
+      ciphertext,
       message, message.length,
       nonce,
       @public_key,
       @secret_key
+    ) or raise Sodium::CryptoError, 'failed to close the box'
 
     Sodium::Util.unpad(ciphertext, self.implementation::BOXZEROBYTES)
   end
@@ -36,11 +39,13 @@ class Sodium::Box
     nonce      = _nonce(nonce)
     message    = Sodium::Util.buffer(ciphertext.length)
 
-    self.implementation.nacl_open message,
+    self.implementation.nacl_open(
+      message,
       ciphertext, ciphertext.length,
       nonce,
       @public_key,
       @secret_key
+    ) or raise Sodium::CryptoError, 'failed to open the box'
 
     Sodium::Util.unpad(message, self.implementation::ZEROBYTES)
   end

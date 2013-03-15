@@ -11,7 +11,8 @@ class Sodium::Auth
     message       = _message(message)
     authenticator = Sodium::Util.buffer(self.class::BYTES)
 
-    self.implementation.nacl(authenticator, message, message.length, @key)
+    self.implementation.nacl(authenticator, message, message.length, @key) or
+      raise Sodium::CryptoError, 'failed to generate an authenticator'
 
     authenticator
   end
