@@ -1,7 +1,7 @@
 require_relative '../sodium'
 
 class Sodium::Box
-  include Sodium::Delegate.for(self)
+  include Sodium::Delegate
 
   def self.keypair
     public_key = Sodium::Util.buffer(self.implementation::PUBLICKEYBYTES)

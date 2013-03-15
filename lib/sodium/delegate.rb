@@ -1,41 +1,37 @@
 require_relative '../sodium'
 
 module Sodium::Delegate
-  def self.for(klass)
-    _nacl_class_methods = Module.new do
+  def self.included(base)
+    base.send :extend, self.class_methods(base)
+  end
+
+  def self.class_methods(base)
+    Module.new do
       define_method :implementations do
         @_nacl_implementations ||= {}
       end
 
       define_method :implementation do |name = self::DEFAULT|
-        self == klass                ?
+        self == base                 ?
           self.implementations[name] :
           self
       end
 
       define_method :new do |*args, &block|
-        self == klass                            ?
+        self == base                             ?
           self.implementation.new(*args, &block) :
           super(*args, &block)
       end
     end
+  end
 
-    Module.new do
-      def primitive
-        self.implementation::PRIMITIVE
-      end
+  def primitive
+    self.implementation::PRIMITIVE
+  end
 
-      protected
+  protected
 
-      @_nacl_class_methods = _nacl_class_methods
-
-      def implementation
-        self.class.implementation
-      end
-
-      def self.included(base)
-        base.send :extend, @_nacl_class_methods
-      end
-    end
+  def implementation
+    self.class.implementation
   end
 end

@@ -1,15 +1,7 @@
 require_relative '../sodium'
 
 class Sodium::Auth
-  include Sodium::Delegate.for(self)
-
-  def self.auth(key, message)
-    self.new(key).auth(message)
-  end
-
-  def self.verify(key, message, authenticator)
-    self.new(key).verify(message, authenticator)
-  end
+  include Sodium::Delegate
 
   def initialize(key)
     @key = _key(key)
