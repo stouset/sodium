@@ -60,4 +60,24 @@ module Sodium::NaCl
     methods[nil]     = [ :pointer, :pointer, :ulong_long, :pointer, :int ]
     methods[:verify] = [ :pointer, :pointer, :ulong_long, :pointer, :int ]
   end
+
+  nacl_default Sodium::Box, :curve25519xsalsa20poly1305
+
+  nacl_family Sodium::Box, :Curve25519XSalsa20Poly1305, :ref do |methods, constants|
+    constants[:version]        = '-'
+    constants[:publickeybytes] = 32
+    constants[:secretkeybytes] = 32
+    constants[:beforenmbytes]  = 32
+    constants[:noncebytes]     = 24
+    constants[:zerobytes]      = 32
+    constants[:boxzerobytes]   = 16
+    constants[:macbytes]       = 16
+
+    methods[nil]           = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ]
+    methods[:open]         = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ]
+    methods[:keypair]      = [ :pointer, :pointer, :int ]
+    methods[:beforenm]     = [ :pointer, :pointer, :pointer, :int ]
+    methods[:afternm]      = [ :pointer, :pointer, :ulong_long, :pointer, :pointer ]
+    methods[:open_afternm] = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ]
+  end
 end
