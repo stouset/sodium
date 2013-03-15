@@ -3,13 +3,17 @@ require_relative '../sodium'
 class Sodium::Auth
   include Sodium::Delegate
 
+  def self.key
+    Sodium::Util.key(self.implementation::KEYBYTES)
+  end
+
   def initialize(key)
     @key = _key(key)
   end
 
   def auth(message)
     message       = _message(message)
-    authenticator = Sodium::Util.buffer(self.class::BYTES)
+    authenticator = Sodium::Util.buffer(self.implementation::BYTES)
 
     self.implementation.nacl(authenticator, message, message.length, @key) or
       raise Sodium::CryptoError, 'failed to generate an authenticator'

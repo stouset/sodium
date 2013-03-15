@@ -7,6 +7,10 @@ module Sodium::Delegate
 
   def self.class_methods(base)
     Module.new do
+      define_method :primitive do
+        self.implementation::PRIMITIVE
+      end
+
       define_method :implementations do
         @_nacl_implementations ||= {}
       end

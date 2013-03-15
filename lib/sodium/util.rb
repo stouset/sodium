@@ -1,6 +1,12 @@
 require_relative '../sodium'
 
+require 'securerandom'
+
 module Sodium::Util
+  def self.key(length)
+    SecureRandom.random_bytes(length)
+  end
+
   def self.buffer(length)
     (0.chr * length).b
   end

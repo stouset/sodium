@@ -16,4 +16,6 @@ Gem::Specification.new do |gem|
   gem.test_files  = `git ls-files -- spec/*`  .split("\n")
 
   gem.add_dependency 'ffi'
+
+  gem.add_development_dependency 'minitest'
 end
