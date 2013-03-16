@@ -1,4 +1,4 @@
-require_relative '../sodium'
+require 'sodium'
 
 class Sodium::Box
   include Sodium::Delegate

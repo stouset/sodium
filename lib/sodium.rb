@@ -4,10 +4,10 @@ module Sodium
   class CryptoError < Error;           end
 end
 
-require_relative 'sodium/delegate'
-require_relative 'sodium/util'
+require 'sodium/delegate'
+require 'sodium/util'
 
-require_relative 'sodium/auth'
-require_relative 'sodium/box'
+require 'sodium/auth'
+require 'sodium/box'
 
-require_relative 'sodium/na_cl'
+require 'sodium/na_cl'

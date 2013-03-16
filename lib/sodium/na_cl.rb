@@ -1,4 +1,4 @@
-require_relative '../sodium'
+require 'sodium'
 require 'ffi'
 
 module Sodium::NaCl

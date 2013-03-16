@@ -1,4 +1,4 @@
-require_relative '../sodium'
+require 'sodium'
 
 module Sodium::Delegate
   def self.included(base)

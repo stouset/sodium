@@ -1,5 +1,4 @@
-require_relative '../sodium'
-
+require 'sodium'
 require 'securerandom'
 
 module Sodium::Util
