@@ -17,7 +17,7 @@ module Sodium::NaCl
       :primitive      => primitive
     }
 
-    yield methods, constants
+    yield constants, methods
 
     _install_implementation scope, klass, primitive
     _install_constants      klass, family, primitive, implementation, constants
@@ -66,43 +66,54 @@ module Sodium::NaCl
 
   ffi_lib 'sodium'
 
+  nacl_family Sodium::Auth, :HMACSHA256, :ref do |constants, methods|
+    constants.update(
+      :version  => '-',
+      :bytes    => 32,
+      :keybytes => 32
+    )
+
+    methods.update(
+      nil     => [ :pointer, :pointer, :ulong_long, :pointer, :int ],
+      :verify => [ :pointer, :pointer, :ulong_long, :pointer, :int ]
+    )
+  end
+
+  nacl_family Sodium::Auth, :HMACSHA512256, :ref do |constants, methods|
+    constants.update(
+      :version  => '-',
+      :bytes    => 32,
+      :keybytes => 32
+    )
+
+    methods.update(
+      nil     => [ :pointer, :pointer, :ulong_long, :pointer, :int ],
+      :verify => [ :pointer, :pointer, :ulong_long, :pointer, :int ]
+    )
+  end
+
+  nacl_family Sodium::Box, :Curve25519XSalsa20Poly1305, :ref do |constants, methods|
+    constants.update(
+      :version        => '-',
+      :publickeybytes => 32,
+      :secretkeybytes => 32,
+      :beforenmbytes  => 32,
+      :noncebytes     => 24,
+      :zerobytes      => 32,
+      :boxzerobytes   => 16,
+      :macbytes       => 16,
+    )
+
+    methods.update(
+      nil           => [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ],
+      :open         => [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ],
+      :keypair      => [ :pointer, :pointer, :int ],
+      :beforenm     => [ :pointer, :pointer, :pointer, :int ],
+      :afternm      => [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ],
+      :open_afternm => [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ],
+    )
+  end
+
   nacl_default Sodium::Auth, :hmacsha512256
-
-  nacl_family Sodium::Auth, :HMACSHA256, :ref do |methods, constants|
-    constants[:version]  = '-'
-    constants[:bytes]    = 32
-    constants[:keybytes] = 32
-
-    methods[nil]     = [ :pointer, :pointer, :ulong_long, :pointer, :int ]
-    methods[:verify] = [ :pointer, :pointer, :ulong_long, :pointer, :int ]
-  end
-
-  nacl_family Sodium::Auth, :HMACSHA512256, :ref do |methods, constants|
-    constants[:version]  = '-'
-    constants[:bytes]    = 32
-    constants[:keybytes] = 32
-
-    methods[nil]     = [ :pointer, :pointer, :ulong_long, :pointer, :int ]
-    methods[:verify] = [ :pointer, :pointer, :ulong_long, :pointer, :int ]
-  end
-
-  nacl_default Sodium::Box, :curve25519xsalsa20poly1305
-
-  nacl_family Sodium::Box, :Curve25519XSalsa20Poly1305, :ref do |methods, constants|
-    constants[:version]        = '-'
-    constants[:publickeybytes] = 32
-    constants[:secretkeybytes] = 32
-    constants[:beforenmbytes]  = 32
-    constants[:noncebytes]     = 24
-    constants[:zerobytes]      = 32
-    constants[:boxzerobytes]   = 16
-    constants[:macbytes]       = 16
-
-    methods[nil]           = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ]
-    methods[:open]         = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :pointer, :int ]
-    methods[:keypair]      = [ :pointer, :pointer, :int ]
-    methods[:beforenm]     = [ :pointer, :pointer, :pointer, :int ]
-    methods[:afternm]      = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ]
-    methods[:open_afternm] = [ :pointer, :pointer, :ulong_long, :pointer, :pointer, :int ]
-  end
+  nacl_default Sodium::Box,  :curve25519xsalsa20poly1305
 end
