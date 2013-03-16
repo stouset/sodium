@@ -1,15 +1,15 @@
 require 'test_helper'
 
-describe Sodium::Auth::HMACSHA512256 do
+describe Sodium::Auth::HMACSHA256 do
   subject { self.klass.new(self.key) }
 
-  let(:klass)         { Sodium::Auth::HMACSHA512256 }
+  let(:klass)         { Sodium::Auth::HMACSHA256 }
   let(:key)           { Base64.decode64 'XMfWD8/yrcNDzJyGhxRIwi5tSGKf8D0ul9FyX/djvjg=' }
-  let(:authenticator) { Base64.decode64 '6BN5+HNq0F8skQKkta+CLiBJ7mrrJaGw3G2J7jMT2qA=' }
+  let(:authenticator) { Base64.decode64 '6WDKvxKevcZts0Yc1HWGnylNYEpcxPO9tVtApEK8XWc=' }
   let(:plaintext)     { 'message' }
 
   it '::primitive must be correct' do
-    self.klass.primitive.must_equal :hmacsha512256
+    self.klass.primitive.must_equal :hmacsha256
   end
 
   # should be on Sodium::Delegate
