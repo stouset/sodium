@@ -1,0 +1,54 @@
+!ruby/class 'Sodium::Auth':
+  :family: crypto_auth
+  
+  :functions: 
+    ! ''   : [ pointer, pointer, ulong_long, pointer, int ]
+    :verify: [ pointer, pointer, ulong_long, pointer, int ]
+  
+  :implementations:
+    - &default_auth
+      :name          : :HMACSHA512256
+      :primitive     : :hmacsha512256
+      :implementation: :ref
+      :constants     :
+        :VERSION : '-'
+        :BYTES   : 32
+        :KEYBYTES: 32
+
+    - :name          : :HMACSHA256
+      :primitive     : :hmacsha256
+      :implementation: ref
+      :constants     :
+        :VERSION : '-'
+        :BYTES   : 32
+        :KEYBYTES: 32
+
+  :default: *default_auth
+
+!ruby/class 'Sodium::Box':
+  :family: crypto_box
+    
+  :functions:
+    ! ''         : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
+    :open        : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
+    :keypair     : [ pointer, pointer, int ]
+    :beforenm    : [ pointer, pointer, pointer, int ]
+    :afternm     : [ pointer, pointer, ulong_long, pointer, pointer, int ]
+    :open_afternm: [ pointer, pointer, ulong_long, pointer, pointer, int ]
+
+  :implementations:
+    - &default_box
+      :name          : :Curve25519XSalsa20Poly1305
+      :primitive     : :curve25519xsalsa20poly1305
+      :implementation: ref
+      :constants     :
+        :VERSION       : '-'
+        :PUBLICKEYBYTES: 32
+        :SECRETKEYBYTES: 32
+        :BEFORENMBYTES : 32
+        :NONCEBYTES    : 24
+        :ZEROBYTES     : 32
+        :BOXZEROBYTES  : 16
+        :MACBYTES      : 16
+        
+  :default: *default_box
