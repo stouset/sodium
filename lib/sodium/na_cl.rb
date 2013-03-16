@@ -10,6 +10,10 @@ module Sodium::NaCl
 
   ffi_lib 'sodium'
 
+  def self._metaclass(klass)
+    (class << klass; self; end)
+  end
+
   def self._install_implementation(scope, klass, primitive)
     scope.implementations[primitive] = klass
   end
@@ -33,7 +37,7 @@ module Sodium::NaCl
 
       self.attach_function imp, arguments[0..-2], arguments.last
 
-      (class << klass; self; end).send(:define_method, meth) do |*a, &b|
+      _metaclass(klass).send :define_method, meth do |*a, &b|
         nacl.send(imp, *a, &b) == 0
       end
     end
