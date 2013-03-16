@@ -19,7 +19,7 @@ module Sodium::NaCl
       :primitive      => family.to_s.split('_').last.to_sym,
     }
 
-    scope.implementations[primitive.downcase] = klass
+    scope.implementations[constants[:primitive]] = klass
 
     yield methods, constants
 
