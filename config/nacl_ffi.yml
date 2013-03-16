@@ -1,4 +1,4 @@
-!ruby/class 'Sodium::Auth':
+- :class : Sodium::Auth
   :family: crypto_auth
   
   :functions: 
@@ -25,7 +25,7 @@
 
   :default: *default_auth
 
-!ruby/class 'Sodium::Box':
+- :class : Sodium::Box
   :family: crypto_box
     
   :functions:

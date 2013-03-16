@@ -16,6 +16,10 @@ module Sodium::NaCl
     end
   end
 
+  def self._load_class(name)
+    name.split('::').inject(Object) {|klass, part| klass.const_get(part) }
+  end
+
   def self._metaclass(klass)
     (class << klass; self; end)
   end
@@ -46,7 +50,8 @@ module Sodium::NaCl
     end
   end
 
-  CONFIG.each do |scope, configuration|
+  CONFIG.each do |configuration|
+    scope           = self._load_class configuration[:class]
     default         = configuration[:default]
     family          = configuration[:family]
     functions       = configuration[:functions]
