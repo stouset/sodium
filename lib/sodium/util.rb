@@ -8,7 +8,9 @@ module Sodium::Util
   end
 
   def self.buffer(length)
-    (0.chr * length).b
+    (0.chr * length).tap do |s|
+      s.force_encoding('BINARY') if s.respond_to?(:force_encoding)
+    end
   end
 
   def self.pad(message, length)
