@@ -14,6 +14,12 @@ module Sodium::NaCl
     (class << klass; self; end)
   end
 
+  def self._attach_method(klass, delegate, method, implementation)
+    self._metaclass(klass).send :define_method, meth do |*a, &b|
+      delegate.send imp, *a, &b
+    end
+  end
+
   def self._install_implementation(scope, klass, primitive)
     scope.implementations[primitive] = klass
   end
@@ -35,11 +41,8 @@ module Sodium::NaCl
       meth      = [ 'nacl',                            name ].compact.join('_')
       arguments = arguments.map(&:to_sym)
 
-      self.attach_function imp, arguments[0..-2], arguments.last
-
-      _metaclass(klass).send :define_method, meth do |*a, &b|
-        nacl.send(imp, *a, &b) == 0
-      end
+      self.attach_function imp,  arguments[0..-2], arguments.last
+      self.attach_method   klass, nacl, meth, imp
     end
   end
 
