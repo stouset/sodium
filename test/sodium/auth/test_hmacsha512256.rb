@@ -1,4 +1,4 @@
-require_relative '../../test_helper'
+require 'test_helper'
 
 describe Sodium::Auth::HMACSHA512256 do
   subject { self.klass.new(self.key) }
