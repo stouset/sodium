@@ -11,8 +11,8 @@ module Sodium::NaCl
   ffi_lib 'sodium'
 
   def self.attach_method(klass, delegate, method, implementation)
-    self._metaclass(klass).send :define_method, meth do |*a, &b|
-      delegate.send imp, *a, &b
+    self._metaclass(klass).send :define_method, method do |*a, &b|
+      delegate.send(implementation, *a, &b) == 0
     end
   end
 
