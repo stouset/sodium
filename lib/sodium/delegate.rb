@@ -5,14 +5,16 @@ module Sodium::Delegate
     base.send :extend, self.class_methods(base)
   end
 
+
   def self.class_methods(base)
     Module.new do
-      define_method :primitive do
-        self.implementation::PRIMITIVE
+      def inherited(base)
+        @_nacl_implementations ||= []
+        @_nacl_implementations <<  base
       end
 
-      define_method :implementations do
-        @_nacl_implementations ||= {}
+      define_method :primitive do
+        self.implementation::PRIMITIVE
       end
 
       define_method :implementation do |*args|
@@ -22,9 +24,9 @@ module Sodium::Delegate
 
         name = args.first || self::DEFAULT
 
-        self == base                 ?
-          self.implementations[name] :
-          self
+        self != base ?
+          self       :
+          @_nacl_implementations.detect {|i| i.primitive == name }
       end
 
       define_method :new do |*args, &block|

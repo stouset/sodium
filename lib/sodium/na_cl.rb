@@ -24,10 +24,6 @@ module Sodium::NaCl
     (class << klass; self; end)
   end
 
-  def self._install_implementation(scope, klass, primitive)
-    scope.implementations[primitive] = klass
-  end
-
   def self._install_constants(klass, family, primitive, implementation, constants)
     constants.each do |name, value|
       family = family.to_s.upcase
@@ -70,9 +66,8 @@ module Sodium::NaCl
         :PRIMITIVE      => primitive
       )
 
-      _install_implementation scope, klass, primitive
-      _install_constants      klass, family, primitive, implementation, constants
-      _install_functions      klass, family, primitive, implementation, functions
+      _install_constants klass, family, primitive, implementation, constants
+      _install_functions klass, family, primitive, implementation, functions
     end
   end
 end

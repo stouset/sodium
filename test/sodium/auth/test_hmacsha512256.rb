@@ -12,9 +12,6 @@ describe Sodium::Auth::HMACSHA512256 do
     self.klass.primitive.must_equal :hmacsha512256
   end
 
-  # should be on Sodium::Delegate
-  it '::implementation must be itself'
-
   it '::BYTES must be correct' do
     self.klass::BYTES.must_equal 32
   end
