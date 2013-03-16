@@ -63,7 +63,7 @@ module Sodium::NaCl
 
       constants.update(
         :IMPLEMENTATION => implementation,
-        :PRIMITIVE      => primitive,
+        :PRIMITIVE      => primitive
       )
 
       _install_implementation scope, klass, primitive
