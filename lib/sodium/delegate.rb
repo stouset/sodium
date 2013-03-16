@@ -1,4 +1,4 @@
-require_relative '../sodium'
+require 'sodium'
 
 module Sodium::Delegate
   def self.included(base)
@@ -15,7 +15,13 @@ module Sodium::Delegate
         @_nacl_implementations ||= {}
       end
 
-      define_method :implementation do |name = self::DEFAULT|
+      define_method :implementation do |*args|
+        # seriously, fuck Ruby 1.8
+        raise ArgumentError, "wrong number of arguments (#{args.length} for 0)" if
+          args.length > 1
+
+        name = args.first || self::DEFAULT
+
         self == base                 ?
           self.implementations[name] :
           self

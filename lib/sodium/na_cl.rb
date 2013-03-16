@@ -1,4 +1,4 @@
-require_relative '../sodium'
+require 'sodium'
 require 'ffi'
 
 module Sodium::NaCl
@@ -19,7 +19,7 @@ module Sodium::NaCl
       :primitive      => family.to_s.split('_').last.to_sym,
     }
 
-    scope.implementations[primitive.downcase] = klass
+    scope.implementations[constants[:primitive]] = klass
 
     yield methods, constants
 
@@ -35,9 +35,12 @@ module Sodium::NaCl
       meth = [ 'nacl', name                 ].compact.map(&:to_s).join('_')
 
       self.attach_function imp, arguments[0..-2], arguments.last
-      self.singleton_class.send :alias_method, fn, imp
 
-      klass.singleton_class.send(:define_method, meth) {|*a, &b| nacl.send(fn, *a, &b) == 0 }
+      # fuck Ruby 1.8
+      (class << self;  self; end).send(:alias_method, fn, imp)
+      (class << klass; self; end).send(:define_method, meth) do |*a, &b|
+        nacl.send(fn, *a, &b) == 0
+      end
     end
   end
 
