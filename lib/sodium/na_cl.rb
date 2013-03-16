@@ -10,14 +10,14 @@ module Sodium::NaCl
 
   ffi_lib 'sodium'
 
-  def self._metaclass(klass)
-    (class << klass; self; end)
-  end
-
-  def self._attach_method(klass, delegate, method, implementation)
+  def self.attach_method(klass, delegate, method, implementation)
     self._metaclass(klass).send :define_method, meth do |*a, &b|
       delegate.send imp, *a, &b
     end
+  end
+
+  def self._metaclass(klass)
+    (class << klass; self; end)
   end
 
   def self._install_implementation(scope, klass, primitive)
