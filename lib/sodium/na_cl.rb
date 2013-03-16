@@ -2,47 +2,69 @@ require 'sodium'
 require 'ffi'
 
 module Sodium::NaCl
-  extend FFI::Library
-
-  ffi_lib 'sodium'
-
   def self.nacl_default(klass, primitive)
     klass.const_set(:DEFAULT, primitive)
   end
 
-  def self.nacl_family(scope, primitive, implementation)
-    klass     = scope.const_set primitive, Class.new(scope)
-    family    = 'crypto_' + klass.name.split('::')[1..-1].join('_').downcase
+  def self.nacl_family(scope, subclass, implementation)
+    klass     = _define_subclass(scope, subclass)
+    family    = _extract_family_name(scope)
+    primitive = subclass.to_s.downcase.to_sym
+
     methods   = {}
     constants = {
       :implementation => implementation,
-      :primitive      => family.to_s.split('_').last.to_sym,
+      :primitive      => primitive
     }
-
-    scope.implementations[constants[:primitive]] = klass
 
     yield methods, constants
 
-    constants.each do |name, value|
-      klass.const_set(name                           .to_s.upcase, value)
-      self .const_set(family.to_s.upcase + '_' + name.to_s.upcase, value)
-    end
+    _install_implementation scope, klass, primitive
+    _install_constants      klass, family, primitive, implementation, constants
+    _install_methods        klass, family, primitive, implementation, methods
+  end
 
+  def self._define_subclass(scope, name)
+    scope.const_set name, Class.new(scope)
+  end
+
+  def self._extract_family_name(klass)
+    'crypto_' + klass.name.split('::').last.downcase
+  end
+
+  def self._install_implementation(scope, klass, primitive)
+    scope.implementations[primitive] = klass
+  end
+
+  def self._install_constants(klass, family, primitive, implementation, constants)
+    constants.each do |name, value|
+      family = family.to_s.upcase
+      name   = name.to_s.upcase
+
+      self. const_set("#{family}_#{primitive}_#{name}", value)
+      klass.const_set(name,                             value)
+    end
+  end
+
+  def self._install_methods(klass, family, primitive, implementation, methods)
     methods.each do |name, arguments|
       nacl = self
-      imp  = [ family, implementation, name ].compact.map(&:to_s).join('_')
-      fn   = [ family,                 name ].compact.map(&:to_s).join('_')
-      meth = [ 'nacl', name                 ].compact.map(&:to_s).join('_')
+      imp  = [ family, primitive, implementation, name ].compact.join('_')
+      meth = [ 'nacl',                            name ].compact.join('_')
 
       self.attach_function imp, arguments[0..-2], arguments.last
 
-      # fuck Ruby 1.8
-      (class << self;  self; end).send(:alias_method, fn, imp)
       (class << klass; self; end).send(:define_method, meth) do |*a, &b|
-        nacl.send(fn, *a, &b) == 0
+        nacl.send(imp, *a, &b) == 0
       end
     end
   end
+end
+
+module Sodium::NaCl
+  extend FFI::Library
+
+  ffi_lib 'sodium'
 
   nacl_default Sodium::Auth, :hmacsha512256
 
