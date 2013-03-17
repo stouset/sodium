@@ -8,9 +8,10 @@ end
 
 Coveralls.wear!('sodium')
 
-require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/pride'
+require 'minitest/hell'
+require 'minitest/autorun'
 
 require 'sodium'
 
