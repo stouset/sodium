@@ -11,10 +11,16 @@ module Sodium::Delegate
       def inherited(base)
         @_nacl_implementations ||= []
         @_nacl_implementations <<  base
+
+        (class << base; self; end).send :undef_method, :implementation=
       end
 
       define_method :primitive do
         self.implementation[:PRIMITIVE]
+      end
+
+      define_method :implementation= do |implementation|
+        @_nacl_default = implementation
       end
 
       define_method :implementation do |*args|
@@ -25,11 +31,15 @@ module Sodium::Delegate
         raise ArgumentError, "wrong number of arguments (#{args.length}) for 0)"   if
           args.length != 0 and self != base
 
-        name = args.first || self::DEFAULT
+        case
+          when self != base then self
+          when args.empty?  then @_nacl_default ||= _implementation(self::DEFAULT)
+          else                                      _implementation(args.first)
+        end
+      end
 
-        self != base ?
-          self       :
-          @_nacl_implementations.detect {|i| i.primitive == name }
+      define_method :_implementation do |name|
+        @_nacl_implementations.detect {|i| i.primitive == name }
       end
 
       define_method :new do |*args, &block|
@@ -37,16 +47,23 @@ module Sodium::Delegate
           self.implementation.new(*args, &block) :
           super(*args, &block)
       end
+
+      private :_implementation
     end
   end
 
   def primitive
-    self.implementation::PRIMITIVE
+    self.implementation[:PRIMITIVE]
+  end
+
+  # only for testing
+  def _implementation=(implementation)
+    @_nacl_implementation = implementation
   end
 
   protected
 
   def implementation
-    self.class.implementation
+    @_nacl_implementation ||= self.class.implementation
   end
 end
