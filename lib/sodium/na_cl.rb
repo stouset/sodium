@@ -24,7 +24,13 @@ module Sodium::NaCl
     (class << klass; self; end)
   end
 
-  def self._install_constants(klass, family, primitive, implementation, constants)
+  def self._install_constants(klass, family, primitive, implementation, version, constants)
+    constants.update(
+      :PRIMITIVE      => primitive,
+      :IMPLEMENTATION => implementation,
+      :VERSION        => version
+    )
+
     constants.each do |name, value|
       family = family.to_s.upcase
       name   = name.to_s.upcase
@@ -34,7 +40,7 @@ module Sodium::NaCl
     end
   end
 
-  def self._install_functions(klass, family, primitive, implementation, methods)
+  def self._install_functions(klass, family, primitive, implementation, version, methods)
     methods.each do |name, arguments|
       nacl      = self
       imp       = [ family, primitive, implementation, name ].compact.join('_')
@@ -48,32 +54,30 @@ module Sodium::NaCl
 
   CONFIG.each do |configuration|
     scope           = self._load_class configuration[:class]
-    consts          = configuration[:constants]
     functions       = configuration[:functions]
     implementations = configuration[:implementations]
 
     scope.const_set :DEFAULT, configuration[:default][:primitive]
 
     implementations.each do |config|
-      values = config[:constants]
       klass  = scope.const_set config[:name], Class.new(scope)
 
-      constants = Hash[consts.zip(values)].update(
-        :IMPLEMENTATION => config[:implementation],
-        :PRIMITIVE      => config[:primitive],
-        :VERSION        => config[:version]
-      )
+      consts    = configuration[:constants]
+      values    = config[:constants]
+      constants = Hash[consts.zip(values)]
 
       _install_constants klass,
         configuration[:family],
         config[:primitive],
         config[:implementation],
+        config[:version],
         constants
 
       _install_functions klass,
         configuration[:family],
         config[:primitive],
         config[:implementation],
+        config[:version],
         functions
     end
   end
