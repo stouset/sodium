@@ -4,7 +4,7 @@ class Sodium::Auth
   include Sodium::Delegate
 
   def self.key
-    Sodium::Util.key(self.implementation::KEYBYTES)
+    Sodium::Util.key self.implementation[:KEYBYTES]
   end
 
   def initialize(key)
@@ -13,7 +13,7 @@ class Sodium::Auth
 
   def auth(message)
     message       = _message(message)
-    authenticator = Sodium::Util.buffer(self.implementation::BYTES)
+    authenticator = Sodium::Util.buffer self.implementation[:BYTES]
 
     self.implementation.nacl(authenticator, message, message.length, @key) or
       raise Sodium::CryptoError, 'failed to generate an authenticator'
@@ -31,11 +31,11 @@ class Sodium::Auth
   private
 
   def _key(k)
-    Sodium::Util.assert_length(k.to_str, self.implementation::KEYBYTES, 'key')
+    Sodium::Util.assert_length k.to_str, self.implementation[:KEYBYTES], 'key'
   end
 
   def _authenticator(a)
-    Sodium::Util.assert_length(a.to_str, self.implementation::KEYBYTES, 'authenticator')
+    Sodium::Util.assert_length a.to_str, self.implementation[:BYTES], 'authenticator'
   end
 
   def _message(m)

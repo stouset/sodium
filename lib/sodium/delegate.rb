@@ -14,7 +14,7 @@ module Sodium::Delegate
       end
 
       define_method :primitive do
-        self.implementation::PRIMITIVE
+        self.implementation[:PRIMITIVE]
       end
 
       define_method :implementation do |*args|

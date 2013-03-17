@@ -30,10 +30,17 @@ module Sodium::NaCl
 
   def self._install_implementations(scope, configuration)
     configuration[:implementations].each do |config|
-      klass          = scope.const_set config[:name], Class.new(scope)
+      klass = Class.new(scope) do
+        def self.[](name)
+          self.const_get(name)
+        end
+      end
+
       family         = configuration[:family]
       primitive      = config[:primitive]
       implementation = config[:implementation]
+
+      scope.const_set config[:name], klass
 
       _install_constants klass, family, primitive, implementation,
         Hash[configuration[:constants].zip(config[:constants])]
