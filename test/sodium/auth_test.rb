@@ -21,12 +21,12 @@ describe Sodium::Auth do
   end
 
   it 'must raise when instantiating with an invalid key' do
-    -> { self.klass.new(self.key[0..-2]) }.
+    lambda { self.klass.new(self.key[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
   it 'must raise when verifying an invalid authenticators' do
-    -> { self.subject.verify('message', 'blaaah') }.
+    lambda { self.subject.verify('message', 'blaaah') }.
       must_raise Sodium::LengthError
   end
 end
