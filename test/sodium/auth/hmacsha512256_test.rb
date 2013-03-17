@@ -20,6 +20,11 @@ describe Sodium::Auth::HMACSHA512256 do
     self.klass::KEYBYTES.must_equal 32
   end
 
+  it 'must mint keys' do
+    self.klass.key.length.
+      must_equal self.klass::KEYBYTES
+  end
+
   it 'must generate authenticators' do
     self.subject.auth(
       self.plaintext
