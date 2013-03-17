@@ -53,32 +53,26 @@ module Sodium::NaCl
   end
 
   CONFIG.each do |configuration|
-    scope           = self._load_class configuration[:class]
-    functions       = configuration[:functions]
-    implementations = configuration[:implementations]
+    scope = self._load_class configuration[:class]
 
     scope.const_set :DEFAULT, configuration[:default][:primitive]
 
-    implementations.each do |config|
+    configuration[:implementations].each do |config|
       klass  = scope.const_set config[:name], Class.new(scope)
-
-      consts    = configuration[:constants]
-      values    = config[:constants]
-      constants = Hash[consts.zip(values)]
 
       _install_constants klass,
         configuration[:family],
         config[:primitive],
         config[:implementation],
         config[:version],
-        constants
+        Hash[configuration[:constants].zip(config[:constants])]
 
       _install_functions klass,
         configuration[:family],
         config[:primitive],
         config[:implementation],
         config[:version],
-        functions
+        configuration[:functions]
     end
   end
 end
