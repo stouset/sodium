@@ -18,15 +18,14 @@ require 'sodium'
 require 'base64'
 
 def sodium_override_default(klass, implementation)
+  klass                = klass.dup
   klass.implementation = implementation
-  yield
-ensure
-  klass.implementation = nil
+  yield klass
 end
 
 def sodium_mock_default(klass)
   mock = MiniTest::Mock.new
-  sodium_override_default(klass, mock) { yield mock }
+  sodium_override_default(klass, mock) {|klass| yield klass, mock }
   mock.verify
 end
 

@@ -21,13 +21,13 @@ describe Sodium::Box do
   end
 
   it 'must mint keypairs from the default implementation' do
-    sodium_mock_default(self.klass) do |mock|
+    sodium_mock_default(self.klass) do |klass, mock|
       mock.expect :nacl_keypair, true, [ '', '' ]
       mock.expect :[],           0,    [:PUBLICKEYBYTES]
       mock.expect :[],           0,    [:SECRETKEYBYTES]
 
 
-      sk, pk = self.klass.keypair
+      sk, pk = klass.keypair
 
       sk.must_equal ''
       pk.must_equal ''
