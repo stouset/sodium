@@ -46,7 +46,7 @@ module Sodium::NaCl
   def self._install_constants(klass, family, primitive, implementation, constants)
     constants.update(
       :PRIMITIVE      => primitive,
-      :IMPLEMENTATION => implementation,
+      :IMPLEMENTATION => implementation
     )
 
     constants.each do |name, value|
