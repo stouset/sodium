@@ -24,6 +24,25 @@ module Sodium::NaCl
     (class << klass; self; end)
   end
 
+  def self._install_default(scope, primitive)
+    scope.const_set :DEFAULT, primitive
+  end
+
+  def self._install_implementations(scope, configuration)
+    configuration[:implementations].each do |config|
+      klass          = scope.const_set config[:name], Class.new(scope)
+      family         = configuration[:family]
+      primitive      = config[:primitive]
+      implementation = config[:implementation]
+
+      _install_constants klass, family, primitive, implementation,
+        Hash[configuration[:constants].zip(config[:constants])]
+
+      _install_functions klass, family, primitive, implementation,
+        configuration[:functions]
+    end
+  end
+
   def self._install_constants(klass, family, primitive, implementation, constants)
     constants.update(
       :PRIMITIVE      => primitive,
@@ -54,19 +73,7 @@ module Sodium::NaCl
   CONFIG.each do |configuration|
     scope = self._load_class configuration[:class]
 
-    scope.const_set :DEFAULT, configuration[:default][:primitive]
-
-    configuration[:implementations].each do |config|
-      klass          = scope.const_set config[:name], Class.new(scope)
-      family         = configuration[:family]
-      primitive      = config[:primitive]
-      implementation = config[:implementation]
-
-      _install_constants klass, family, primitive, implementation,
-        Hash[configuration[:constants].zip(config[:constants])]
-
-      _install_functions klass, family, primitive, implementation,
-        configuration[:functions]
-    end
+    self._install_default         scope, configuration[:default][:primitive]
+    self._install_implementations scope, configuration
   end
 end
