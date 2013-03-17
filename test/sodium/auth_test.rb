@@ -22,9 +22,9 @@ describe Sodium::Auth do
 
   it 'must mint keys from the default implementation' do
     sodium_mock_default(self.klass) do |mock|
-      mock.expect :[], 2, [:KEYBYTES]
+      mock.expect :[], 0, [:KEYBYTES]
 
-      self.klass.key.length.must_equal 2
+      self.klass.key.length.must_equal 0
     end
   end
 
