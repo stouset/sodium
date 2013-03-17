@@ -19,8 +19,11 @@ module Sodium::Delegate
 
       define_method :implementation do |*args|
         # seriously, fuck Ruby 1.8
-        raise ArgumentError, "wrong number of arguments (#{args.length} for 0)" if
+        raise ArgumentError, "wrong number of arguments (#{args.length} for 0..1)" if
           args.length > 1
+
+        raise ArgumentError, "wrong number of arguments (#{args.length}) for 0)"   if
+          args.length != 0 and self != base
 
         name = args.first || self::DEFAULT
 
