@@ -50,14 +50,9 @@ module Sodium::Delegate
     self.implementation[:PRIMITIVE]
   end
 
-  # only for testing
-  def _implementation=(implementation)
-    @_nacl_implementation = implementation
-  end
-
   protected
 
   def implementation
-    @_nacl_implementation ||= self.class.implementation
+    self.class.implementation
   end
 end

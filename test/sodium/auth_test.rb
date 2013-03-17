@@ -33,18 +33,15 @@ describe Sodium::Auth do
       must_raise Sodium::LengthError
   end
 
-  it 'must raise when failing to generate an authenticator' do
-    sodium_mock_instance(subject) do |mock|
-      instance.expect :[],          0,     [ String ]
-      instance.expect :nacl_verify, false, [ String, String, Integer, String ]
-
-      lambda { subject.verify('message', '') }.
-        must_raise Sodium::CryptoError
-    end
-  end
-
   it 'must raise when verifying an invalid authenticators' do
     lambda { self.subject.verify('message', 'blaaah') }.
       must_raise Sodium::LengthError
+  end
+
+  it 'must raise when failing to generate an authenticator' do
+    sodium_stub_failure(self.klass, :nacl) do
+      lambda { subject.auth('message') }.
+        must_raise Sodium::CryptoError
+    end
   end
 end

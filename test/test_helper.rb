@@ -29,8 +29,6 @@ def sodium_mock_default(klass)
   mock.verify
 end
 
-def sodium_mock_instance(instance)
-  mock = MiniTest::Mock.new
-  instance._implementation = mock
-  mock.verify
+def sodium_stub_failure(klass, method, &block)
+  klass.implementation.stub(method, false, &block)
 end
