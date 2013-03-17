@@ -6,6 +6,10 @@ module Sodium::Util
     SecureRandom.random_bytes(length)
   end
 
+  def self.nonce(length)
+    SecureRandom.random_bytes(length)
+  end
+
   def self.buffer(length)
     (0.chr * length).tap do |s|
       s.force_encoding('BINARY') if s.respond_to?(:force_encoding)

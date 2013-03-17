@@ -18,6 +18,10 @@ class Sodium::Box
     @public_key = _public_key(public_key)
   end
 
+  def nonce
+    Sodium::Util.nonce self.implementation[:NONCEBYTES]
+  end
+
   def box(message, nonce)
     message    = _message(message)
     nonce      = _nonce(nonce)
@@ -76,13 +80,13 @@ class Sodium::Box
     Sodium::Util.unpad ciphertext, self.implementation[:BOXZEROBYTES]
   end
 
-  def afternm_open(shared_key, ciphertext, nonce)
+  def open_afternm(shared_key, ciphertext, nonce)
     shared_key = _shared_key(shared_key)
     ciphertext = _ciphertext(ciphertext)
     nonce      = _nonce(nonce)
     message    = Sodium::Util.buffer(ciphertext.length)
 
-    self.implementation.nacl_afternm_open(
+    self.implementation.nacl_open_afternm(
       message,
       ciphertext, ciphertext.length,
       nonce,
