@@ -1,6 +1,6 @@
 - :class    : Sodium::Auth
   :family   : crypto_auth
-  :constants: [ BYTES, KEYBYTES ]
+  :constants: [ VERSION, BYTES, KEYBYTES ]
   
   :functions: 
     ! ''   : [ pointer, pointer, ulong_long, pointer, int ]
@@ -11,20 +11,19 @@
       :name          : :HMACSHA512256
       :primitive     : :hmacsha512256
       :implementation: :ref
-      :version       : '-'
-      :constants     : [ 32, 32 ]
+      :constants     : [ -, 32, 32 ]
 
     - :name          : :HMACSHA256
       :primitive     : :hmacsha256
       :implementation: ref
-      :version       : '-'
-      :constants     : [ 32, 32 ]
+      :constants     : [ -, 32, 32 ]
 
   :default: *default_auth
 
 - :class    : Sodium::Box
   :family   : crypto_box
   :constants:
+    - VERSION
     - PUBLICKEYBYTES
     - SECRETKEYBYTES
     - BEFORENMBYTES
@@ -46,7 +45,6 @@
       :name          : :Curve25519XSalsa20Poly1305
       :primitive     : :curve25519xsalsa20poly1305
       :implementation: ref
-      :version       : '-'
-      :constants     : [ 32, 32, 32, 24, 32, 16, 16 ]
+      :constants     : [ -, 32, 32, 32, 24, 32, 16, 16 ]
         
   :default: *default_box
