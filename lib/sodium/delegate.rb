@@ -21,6 +21,11 @@ module Sodium::Delegate
       self.implementation[:PRIMITIVE]
     end
 
+    def implementation(name = nil)
+      name ?               _find_implementation(name) :
+        @_nacl_default ||= _find_implementation(self::DEFAULT)
+    end
+
     def implementation=(implementation)
       @_nacl_default = implementation
     end
@@ -34,19 +39,9 @@ module Sodium::Delegate
 
   def self.class_methods(base)
     Module.new do
-      define_method :implementation do |*args|
-        # seriously, fuck Ruby 1.8
-        raise ArgumentError, "wrong number of arguments (#{args.length} for 0..1)" if
-          args.length > 1
-
-        args.any? ?          _find_implementation(args.first) :
-          @_nacl_default ||= _find_implementation(self::DEFAULT)
-      end
-
       define_method :new do |*args, &block|
         return super(*args, &block) unless self == base
-
-        self.implementation.new(*args, &block)
+        return self.implementation.new(*args, &block)
       end
     end
   end
