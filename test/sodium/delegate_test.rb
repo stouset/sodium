@@ -22,6 +22,10 @@ describe Sodium::Delegate do
     self.klass.implementation.must_equal self.subclass
   end
 
+  it 'must allow access to constants through indexing' do
+    self.klass.implementation[:PRIMITIVE].must_equal :subclass1
+  end
+
   it 'must allow access to arbitrary implementations' do
     self.klass.implementation(:subclass2).must_equal DelegateTest::Subclass2
   end

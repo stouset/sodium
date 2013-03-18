@@ -24,7 +24,7 @@ end
 
 def sodium_mock_default(klass)
   mock = MiniTest::Mock.new
-  sodium_override_default(klass, mock) {|klass| yield klass, mock }
+  sodium_override_default(klass, mock) {|dup| yield dup, mock }
   mock.verify
 end
 
