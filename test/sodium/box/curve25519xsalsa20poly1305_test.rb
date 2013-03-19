@@ -60,7 +60,7 @@ describe Sodium::Box::Curve25519XSalsa20Poly1305 do
   end
 
   it 'must generate closed boxes with shared keys' do
-    self.subject.afternm(
+    self.klass.afternm(
       self.shared_key,
       self.plaintext,
       self.nonce
@@ -68,7 +68,7 @@ describe Sodium::Box::Curve25519XSalsa20Poly1305 do
   end
 
   it 'must open boxes with shared keys' do
-    self.subject.open_afternm(
+    self.klass.open_afternm(
       self.shared_key,
       self.ciphertext,
       self.nonce

@@ -40,7 +40,7 @@ describe Sodium::Auth do
 
   it 'must raise when failing to generate an authenticator' do
     sodium_stub_failure(self.klass, :nacl) do
-      lambda { subject.auth('message') }.
+      lambda { self.subject.auth('message') }.
         must_raise Sodium::CryptoError
     end
   end

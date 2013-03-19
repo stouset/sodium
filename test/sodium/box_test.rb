@@ -45,12 +45,12 @@ describe Sodium::Box do
   end
 
   it 'must raise when receiving an invalid nonce' do
-    lambda { subject.box('message', subject.nonce[0..-2]) }.
+    lambda { self.subject.box('message', self.subject.nonce[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
   it 'must raise when receiving an invalid shared key' do
-    lambda { subject.afternm('key', 'message', subject.nonce) }.
+    lambda { self.klass.afternm('key', 'message', self.subject.nonce) }.
       must_raise Sodium::LengthError
   end
 
@@ -63,21 +63,21 @@ describe Sodium::Box do
 
   it 'must raise when failing to close a box' do
     sodium_stub_failure(self.klass, :nacl) do
-      lambda { subject.box('message', subject.nonce) }.
+      lambda { self.subject.box('message', self.subject.nonce) }.
         must_raise Sodium::CryptoError
     end
   end
 
   it 'must raise when failing to open a box' do
     sodium_stub_failure(self.klass, :nacl_open) do
-      lambda { subject.open('ciphertext', subject.nonce) }.
+      lambda { self.subject.open('ciphertext', self.subject.nonce) }.
         must_raise Sodium::CryptoError
     end
   end
 
   it 'must raise when failing to generate a shared key' do
     sodium_stub_failure(self.klass, :nacl_beforenm) do
-      lambda { subject.beforenm }.
+      lambda { self.subject.beforenm }.
         must_raise Sodium::CryptoError
     end
   end
@@ -85,11 +85,11 @@ describe Sodium::Box do
   it 'must raise when failing to close a box with a shared key' do
     sodium_stub_failure(self.klass, :nacl_afternm) do
       lambda do
-        key     = subject.beforenm
-        nonce   = subject.nonce
+        key     = self.subject.beforenm
+        nonce   = self.subject.nonce
         message = 'message'
 
-        subject.afternm(key, message, nonce)
+        self.klass.afternm(key, message, nonce)
       end.must_raise Sodium::CryptoError
     end
   end
@@ -97,11 +97,11 @@ describe Sodium::Box do
     it 'must raise when failing to open a box with a shared key' do
     sodium_stub_failure(self.klass, :nacl_open_afternm) do
       lambda do
-        key        = subject.beforenm
-        nonce      = subject.nonce
+        key        = self.subject.beforenm
+        nonce      = self.subject.nonce
         ciphertext = 'ciphertext'
 
-        subject.open_afternm(key, ciphertext, nonce)
+        self.klass.open_afternm(key, ciphertext, nonce)
       end.must_raise Sodium::CryptoError
     end
   end
