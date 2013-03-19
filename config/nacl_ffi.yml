@@ -3,7 +3,7 @@
   :constants: [ VERSION, BYTES, KEYBYTES ]
   
   :functions: 
-    ! ''   : [ pointer, pointer, ulong_long, pointer, int ]
+    ~      : [ pointer, pointer, ulong_long, pointer, int ]
     :verify: [ pointer, pointer, ulong_long, pointer, int ]
 
   :implementations:
@@ -33,7 +33,7 @@
     - MACBYTES
     
   :functions:
-    ! ''         : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
+    ~            : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
     :open        : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
     :keypair     : [ pointer, pointer, int ]
     :beforenm    : [ pointer, pointer, pointer, int ]
@@ -54,7 +54,7 @@
   :constants: [ VERSION, BYTES ]
 
   :functions:
-    ! '': [ pointer, pointer, ulong_long, int ]
+    ~: [ pointer, pointer, ulong_long, int ]
 
   :implementations:
     - &default_hash
