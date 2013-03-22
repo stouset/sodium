@@ -31,7 +31,7 @@ describe Sodium::OneTimeAuth::Poly1305 do
   end
 
   it 'must generate authenticators' do
-    self.subject.auth(
+    self.subject.one_time_auth(
       self.plaintext
     ).must_equal self.authenticator
   end
@@ -46,7 +46,7 @@ describe Sodium::OneTimeAuth::Poly1305 do
   it 'must not verify forged authenticators' do
     self.subject.verify(
       self.plaintext,
-      self.authenticator.suck
+      self.authenticator.succ
     ).must_equal false
   end
 end
