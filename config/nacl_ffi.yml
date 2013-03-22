@@ -69,3 +69,20 @@
       :constants     : [ -, 32 ]
 
   :default: *default_hash
+
+- :class    : Sodium::OneTimeAuth
+  :family   : crypto_onetimeauth
+  :constants: [ VERSION, BYTES, KEYBYTES ]
+
+  :functions:
+    ~      : [ pointer, pointer, ulong_long, pointer, int ]
+    :verify: [ pointer, pointer, ulong_long, pointer, int ]
+
+  :implementations:
+    - &default_onetimeauth
+      :name          : Poly1305
+      :primitive     : :poly1305
+      :implementation: ref
+      :constants     : [ -, 16, 32 ]
+      
+  :default: *default_onetimeauth

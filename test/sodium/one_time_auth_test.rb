@@ -1,23 +1,23 @@
 require 'test_helper'
 
-describe Sodium::Auth do
+describe Sodium::OneTimeAuth do
   subject     { self.klass.new(self.key) }
-  let(:klass) { Sodium::Auth             }
-  let(:key)   { self.klass.key           }
+  let(:klass) { Sodium::OneTimeAuth }
+  let(:key)   { self.klass.key }
 
-  it 'must default to the HMACSHA512256 implementation' do
+  it 'must default to the Poly1305 implementation' do
     self.klass.implementation.
-      must_equal Sodium::Auth::HMACSHA512256
+      must_equal Sodium::OneTimeAuth::Poly1305
   end
 
   it 'must allow access to alternate implementations' do
-    self.klass.implementation(:hmacsha256).
-      must_equal Sodium::Auth::HMACSHA256
+    self.klass.implementation(:foo).
+      must_equal nil
   end
 
   it 'must instantiate the default implementation' do
     self.subject.
-      must_be_kind_of Sodium::Auth::HMACSHA512256
+      must_be_kind_of Sodium::OneTimeAuth::Poly1305
   end
 
   it 'must mint keys from the default implementation' do
@@ -34,13 +34,13 @@ describe Sodium::Auth do
   end
 
   it 'must raise when verifying an invalid authenticator' do
-    lambda { self.subject.verify('message', 'blaaah') }.
+    lambda { self.subject.verify('message', 'blaah') }.
       must_raise Sodium::LengthError
   end
 
   it 'must raise when failing to generate an authenticator' do
     sodium_stub_failure(self.klass, :nacl) do
-      lambda { self.subject.auth('message') }.
+      lambda { self.subject.one_time_auth('message') }.
         must_raise Sodium::CryptoError
     end
   end
