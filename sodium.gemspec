@@ -1,11 +1,11 @@
 Gem::Specification.new do |gem|
-  gem.name    = 'sodium'
+  gem.name    = 'confident'
   gem.version = '0.0.0'
 
   gem.author = 'Stephen Touset'
   gem.email  = 'stephen@touset.org'
 
-  gem.homepage    = 'https://github.com/stouset/sodium'
+  gem.homepage    = 'https://github.com/stouset/confident'
   gem.summary     = %{TBD}
   gem.description = %{TBD}
 
@@ -15,8 +15,8 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`   .split("\n").map {|e| File.basename(e) }
   gem.test_files  = `git ls-files -- spec/*`  .split("\n")
 
-  gem.add_dependency 'ffi'
+  gem.add_dependency 'ffi', '~> 1'
 
-  gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'minitest'
+  gem.add_development_dependency 'rake',     '~> 10'
+  gem.add_development_dependency 'minitest', '~> 4'
 end
