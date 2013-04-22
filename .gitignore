@@ -1,4 +1,6 @@
 build/
 coverage/
 
+Gemfile.lock
+
 libsodium*.tar.gz
