@@ -1,11 +1,11 @@
 Gem::Specification.new do |gem|
-  gem.name    = 'confident'
+  gem.name    = 'sodium'
   gem.version = '0.0.0'
 
   gem.author = 'Stephen Touset'
   gem.email  = 'stephen@touset.org'
 
-  gem.homepage    = 'https://github.com/stouset/confident'
+  gem.homepage    = 'https://github.com/stouset/sodium'
   gem.summary     = %{TBD}
   gem.description = %{TBD}
 
