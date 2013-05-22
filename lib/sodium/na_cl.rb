@@ -10,21 +10,6 @@ module Sodium::NaCl
 
   ffi_lib 'sodium'
 
-  def self.attach_method(implementation, nacl, delegate, method)
-    self._metaclass(delegate).send :define_method, method do |*a, &b|
-      value = nacl.send(implementation, *a, &b)
-      block_given? ? yield(value) : value
-    end
-  end
-
-  def self._load_class(name)
-    name.split('::').inject(Object) {|klass, part| klass.const_get(part) }
-  end
-
-  def self._metaclass(klass)
-    (class << klass; self; end)
-  end
-
   def self._install_default(delegate, configuration)
     family    = configuration[:family]
     method    = _install_function delegate, family, nil, :PRIMITIVE, [ :string ]
@@ -91,6 +76,23 @@ module Sodium::NaCl
     meth
   end
 
+  def self.attach_method(implementation, nacl, delegate, method)
+    self._metaclass(delegate).send :define_method, method do |*a, &b|
+      value = nacl.send(implementation, *a, &b)
+      block_given? ? yield(value) : value
+    end
+  end
+
+  def self._load_class(name)
+    name.split('::').inject(Object) {|klass, part| klass.const_get(part) }
+  end
+
+  def self._metaclass(klass)
+    (class << klass; self; end)
+  end
+end
+
+module Sodium::NaCl
   CONFIG.each do |configuration|
     delegate = self._load_class configuration[:class]
 
