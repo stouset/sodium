@@ -1,29 +1,20 @@
 - :class    : Sodium::Auth
   :family   : crypto_auth
-  :constants: [ VERSION, BYTES, KEYBYTES ]
+  :constants:
+    - BYTES
+    - KEYBYTES
   
   :functions: 
     ~      : [ pointer, pointer, ulong_long, pointer, int ]
     :verify: [ pointer, pointer, ulong_long, pointer, int ]
 
-  :implementations:
-    - &default_auth
-      :name          : :HMACSHA512256
-      :primitive     : :hmacsha512256
-      :implementation: :ref
-      :constants     : [ -, 32, 32 ]
-
-    - :name          : :HMACSHA256
-      :primitive     : :hmacsha256
-      :implementation: ref
-      :constants     : [ -, 32, 32 ]
-
-  :default: *default_auth
+  :primitives:
+    - :HMACSHA512256
+    - :HMACSHA256
 
 - :class    : Sodium::Box
   :family   : crypto_box
   :constants:
-    - VERSION
     - PUBLICKEYBYTES
     - SECRETKEYBYTES
     - BEFORENMBYTES
@@ -40,49 +31,28 @@
     :afternm     : [ pointer, pointer, ulong_long, pointer, pointer, int ]
     :open_afternm: [ pointer, pointer, ulong_long, pointer, pointer, int ]
 
-  :implementations:
-    - &default_box
-      :name          : :Curve25519XSalsa20Poly1305
-      :primitive     : :curve25519xsalsa20poly1305
-      :implementation: ref
-      :constants     : [ -, 32, 32, 32, 24, 32, 16, 16 ]
-        
-  :default: *default_box
+  :primitives:
+    - :Curve25519XSalsa20Poly1305
 
 - :class    : Sodium::Hash
   :family   : crypto_hash
-  :constants: [ VERSION, BYTES ]
+  :constants:
+    - BYTES
 
   :functions:
     ~: [ pointer, pointer, ulong_long, int ]
 
-  :implementations:
-    - &default_hash
-      :name          : :SHA512
-      :primitive     : :sha512
-      :implementation: ref
-      :constants     : [ -, 64 ]
-      
-    - :name          : :SHA256
-      :primitive     : :sha256
-      :implementation: ref
-      :constants     : [ -, 32 ]
-
-  :default: *default_hash
+  :primitives:
+    - :SHA512
+    - :SHA256
 
 - :class    : Sodium::OneTimeAuth
   :family   : crypto_onetimeauth
-  :constants: [ VERSION, BYTES, KEYBYTES ]
+  :constants: 
+    - BYTES
+    - KEYBYTES
 
   :functions:
     ~      : [ pointer, pointer, ulong_long, pointer, int ]
     :verify: [ pointer, pointer, ulong_long, pointer, int ]
 
-  :implementations:
-    - &default_onetimeauth
-      :name          : Poly1305
-      :primitive     : :poly1305
-      :implementation: ref
-      :constants     : [ -, 16, 32 ]
-      
-  :default: *default_onetimeauth

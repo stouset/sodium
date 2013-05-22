@@ -10,9 +10,10 @@ module Sodium::NaCl
 
   ffi_lib 'sodium'
 
-  def self.attach_method(klass, delegate, method, implementation)
-    self._metaclass(klass).send :define_method, method do |*a, &b|
-      delegate.send(implementation, *a, &b) == 0
+  def self.attach_method(implementation, nacl, delegate, method)
+    self._metaclass(delegate).send :define_method, method do |*a, &b|
+      value = nacl.send(implementation, *a, &b)
+      block_given? ? yield(value) : value
     end
   end
 
@@ -24,63 +25,76 @@ module Sodium::NaCl
     (class << klass; self; end)
   end
 
-  def self._install_default(scope, primitive)
-    scope.const_set :DEFAULT, primitive
+  def self._install_default(scope, configuration)
+    family    = configuration[:family]
+    method    = _install_function scope, family, nil, :PRIMITIVE, [ :string ]
+    primitive = scope.send(method)
+  rescue FFI::NotFoundError
+    primitive = configuration[:primitives].first
+  ensure
+    scope.const_set :DEFAULT, primitive.downcase.to_sym
   end
 
-  def self._install_implementations(scope, configuration)
-    configuration[:implementations].each do |config|
+  def self._install_primitives(scope, configuration)
+    configuration[:primitives].each do |primitive|
       klass = Class.new(scope) do
         def self.[](name)
           self.const_get(name)
         end
       end
 
-      family         = configuration[:family]
-      primitive      = config[:primitive]
-      implementation = config[:implementation]
+      scope.const_set primitive, klass
 
-      scope.const_set config[:name], klass
+      _install_constants klass, configuration[:family], primitive,
+        configuration[:constants]
 
-      _install_constants klass, family, primitive, implementation,
-        Hash[configuration[:constants].zip(config[:constants])]
-
-      _install_functions klass, family, primitive, implementation,
+      _install_functions klass, configuration[:family], primitive,
         configuration[:functions]
     end
   end
 
-  def self._install_constants(klass, family, primitive, implementation, constants)
-    constants.update(
-      :PRIMITIVE      => primitive,
-      :IMPLEMENTATION => implementation
-    )
+  def self._install_constants(klass, family, primitive, constants)
+    constants = constants.each_with_object(
+      :PRIMITIVE => :string
+    ) {|constant, hash| hash[constant] = :size_t }
 
-    constants.each do |name, value|
-      family = family.to_s.upcase
-      name   = name.to_s.upcase
-
-      self. const_set("#{family}_#{primitive}_#{name}", value)
-      klass.const_set(name,                             value)
+    constants.each_pair do |name, type|
+      _install_constant(klass, family, primitive, name, type)
     end
   end
 
-  def self._install_functions(klass, family, primitive, implementation, methods)
-    methods.each do |name, arguments|
-      nacl      = self
-      imp       = [ family, primitive, implementation, name ].compact.join('_')
-      meth      = [ 'nacl',                            name ].compact.join('_')
-      arguments = arguments.map(&:to_sym)
+  def self._install_constant(klass, family, primitive, name, type)
+    method = _install_function klass, family, primitive, name, [ type ]
 
-      self.attach_function imp,  arguments[0..-2], arguments.last
-      self.attach_method   klass, nacl, meth, imp
+    family = family.to_s.upcase
+    name   = name.to_s.upcase
+    value  = klass.send(method)
+
+    self. const_set("#{family}_#{primitive}_#{name}", value)
+    klass.const_set(name,                             value)
+  end
+
+  def self._install_functions(klass, family, primitive, methods)
+    methods.each do |name, arguments|
+      _install_function(klass, family, primitive, name, arguments, &:zero?)
     end
+  end
+
+  def self._install_function(klass, family, primitive, name, arguments, &converter)
+    imp       = [ family, primitive, name ].compact.join('_').downcase
+    meth      = [ 'nacl',            name ].compact.join('_').downcase
+    arguments = arguments.map(&:to_sym)
+
+    self.attach_function imp, arguments[0..-2], arguments.last
+    self.attach_method   imp, self, klass, meth, &converter
+
+    meth
   end
 
   CONFIG.each do |configuration|
     scope = self._load_class configuration[:class]
 
-    self._install_default         scope, configuration[:default][:primitive]
-    self._install_implementations scope, configuration
+    self._install_default    scope, configuration
+    self._install_primitives scope, configuration
   end
 end
