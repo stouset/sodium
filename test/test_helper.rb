@@ -13,7 +13,6 @@ require 'minitest/spec'
 require 'minitest/pride'
 
 require 'sodium'
-
 require 'base64'
 
 def sodium_override_default(klass, implementation)
