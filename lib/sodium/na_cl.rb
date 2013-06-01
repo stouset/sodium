@@ -39,9 +39,9 @@ module Sodium::NaCl
   end
 
   def self._install_constants(subclass, family, primitive, constants)
-    constants = constants.each_with_object(
+    constants = constants.inject(
       :PRIMITIVE => :string
-    ) {|constant, hash| hash[constant] = :size_t }
+    ) {|hash, constant| hash.update(constant => :size_t) }
 
     constants.each_pair do |name, type|
       _install_constant(subclass, family, primitive, name, type)
