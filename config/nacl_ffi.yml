@@ -56,3 +56,5 @@
     ~      : [ pointer, pointer, ulong_long, pointer, int ]
     :verify: [ pointer, pointer, ulong_long, pointer, int ]
 
+  :primitives:
+    - :Poly1305
