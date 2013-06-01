@@ -18,7 +18,7 @@ module Sodium::Delegate
     end
 
     def primitive
-      self.implementation[:PRIMITIVE]
+      self.implementation[:PRIMITIVE].to_sym
     end
 
     def implementation(name = nil)
@@ -47,7 +47,7 @@ module Sodium::Delegate
   end
 
   def primitive
-    self.implementation[:PRIMITIVE]
+    self.class.primitive
   end
 
   protected
