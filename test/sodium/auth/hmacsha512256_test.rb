@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe Sodium::Auth::HMACSHA512256 do
+  include SodiumTestHelpers
+
   subject { self.klass.new(self.key) }
 
   let(:klass)     { Sodium::Auth::HMACSHA512256 }
@@ -11,9 +13,9 @@ describe Sodium::Auth::HMACSHA512256 do
       :KEYBYTES => 32, }
   end
 
-  let(:key)           { Base64.decode64 'XMfWD8/yrcNDzJyGhxRIwi5tSGKf8D0ul9FyX/djvjg=' }
-  let(:authenticator) { Base64.decode64 '6BN5+HNq0F8skQKkta+CLiBJ7mrrJaGw3G2J7jMT2qA=' }
-  let(:plaintext)     { 'message' }
+  let_64(:key)           { 'XMfWD8/yrcNDzJyGhxRIwi5tSGKf8D0ul9FyX/djvjg=' }
+  let_64(:authenticator) { '6BN5+HNq0F8skQKkta+CLiBJ7mrrJaGw3G2J7jMT2qA=' }
+  let_64(:plaintext)     { 'bWVzc2FnZQ==' }
 
   it '::primitive must be correct' do
     self.klass.primitive.must_equal self.primitive
@@ -26,13 +28,13 @@ describe Sodium::Auth::HMACSHA512256 do
   end
 
   it 'must mint keys' do
-    self.klass.key.length.must_equal self.klass[:KEYBYTES]
+    self.klass.key.bytesize.must_equal self.klass[:KEYBYTES]
   end
 
   it 'must generate authenticators' do
     self.subject.auth(
       self.plaintext
-    ).must_equal self.authenticator
+    ).to_str.must_equal self.authenticator
   end
 
   it 'must verify authenticators' do
