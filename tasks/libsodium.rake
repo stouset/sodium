@@ -12,7 +12,7 @@ LIBSODIUM_LIBDIR    = "#{LIBSODIUM_BUILD}/src/libsodium/.libs"
 LIBSODIUM_LIB       = "libsodium.a"
 LIBSODIUM           = "#{LIBSODIUM_LIBDIR}/#{LIBSODIUM_LIB}"
 
-namespace :sodium do
+namespace :libsodium do
   directory LIBSODIUM_BUILD
 
   file LIBSODIUM_TARBALL => LIBSODIUM_BUILD do
@@ -62,5 +62,5 @@ namespace :sodium do
   end
 end
 
-task :clean   => 'sodium:clean'
-task :clobber => 'sodium:clobber'
+task :clean   => 'libsodium:clean'
+task :clobber => 'libsodium:clobber'
