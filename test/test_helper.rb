@@ -1,12 +1,12 @@
 require 'coveralls'
 require 'simplecov'
 
-SimpleCov.adapters.define 'sodium' do
+SimpleCov.start do
   add_filter '/test/'
   add_filter '/vendor/'
 end
 
-Coveralls.wear!('sodium')
+Coveralls.wear! if ENV['TRAVIS']
 
 require 'minitest/autorun'
 require 'minitest/spec'
