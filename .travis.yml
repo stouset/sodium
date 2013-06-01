@@ -1,4 +1,4 @@
-script: LD_LIBRARY_PATH=build/libsodium/src/libsodium/.libs bundle exec rake ci
+script: bundle exec rake test
 
 rvm:
   - 1.8.7
