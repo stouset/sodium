@@ -1,43 +1,61 @@
 require 'rake/clean'
+require 'rbconfig'
 
-LIBSODIUM_VERSION = '0.4.1'
-LIBSODIUM_TARBALL = "libsodium-#{LIBSODIUM_VERSION}.tar.gz"
-LIBSODIUM_DIGEST  = '65756c7832950401cc0e6ee0e99b165974244e749f40f33d465f56447bae8ce3'
-LIBSODIUM_PATH    = 'build/libsodium/src/libsodium/.libs'
-LIBSODIUM_LIB     = 'libsodium.so'
-LIBSODIUM         = "#{LIBSODIUM_PATH}/#{LIBSODIUM_LIB}"
+LIBSODIUM_MIRROR  = "https://github.com/jedisct1/libsodium/tarball"
+LIBSODIUM_VERSION = 'master'
+LIBSODIUM_DIGEST  = nil
+
+LIBSODIUM_PATH      = "libsodium-#{LIBSODIUM_VERSION}"
+LIBSODIUM_TARBALL   = "build/#{LIBSODIUM_PATH}.tar.gz"
+LIBSODIUM_BUILD     = "build/#{LIBSODIUM_PATH}"
+LIBSODIUM_LIBDIR    = "#{LIBSODIUM_BUILD}/src/libsodium/.libs"
+LIBSODIUM_LIB       = "libsodium.a"
+LIBSODIUM           = "#{LIBSODIUM_LIBDIR}/#{LIBSODIUM_LIB}"
 
 namespace :sodium do
-  directory 'build'
+  directory LIBSODIUM_BUILD
 
-  file LIBSODIUM_TARBALL do
-    sh "curl -O http://download.dnscrypt.org/libsodium/releases/#{LIBSODIUM_TARBALL}"
+  file LIBSODIUM_TARBALL => LIBSODIUM_BUILD do
+    sh %{curl -L -o #{LIBSODIUM_TARBALL} #{LIBSODIUM_MIRROR}/#{LIBSODIUM_VERSION}}
 
-    if LIBSODIUM_DIGEST != Digest::SHA256.hexdigest(File.read(LIBSODIUM_TARBALL))
-      rm LIBSODIUM_TARBALL
-      raise "#{LIBSODIUM_TARBALL} failed checksum"
-    end
+    next if LIBSODIUM_DIGEST.nil?
+    next if LIBSODIUM_DIGEST == Digest::SHA256.hexdigest(
+      File.read(LIBSODIUM_TARBALL)
+    )
+
+    rm LIBSODIUM_TARBALL
+    raise "#{LIBSODIUM_TARBALL} failed checksum"
   end
 
-  file 'build/libsodium' => [:build, LIBSODIUM_TARBALL] do
-    sh "tar xf #{LIBSODIUM_TARBALL}"
-    mv "libsodium-#{LIBSODIUM_VERSION}", "build/libsodium"
+  file "#{LIBSODIUM_BUILD}/autogen.sh" => [
+    LIBSODIUM_BUILD,
+    LIBSODIUM_TARBALL,
+  ] do
+    sh %{tar -C #{LIBSODIUM_BUILD} --strip-components 1 -m -xf #{LIBSODIUM_TARBALL}}
   end
 
-  file 'build/libsodium/Makefile' => 'build/libsodium' do
-    sh 'cd build/libsodium && ./configure'
+  file "#{LIBSODIUM_BUILD}/configure" => "#{LIBSODIUM_BUILD}/autogen.sh" do
+    sh %{cd #{LIBSODIUM_BUILD} && ./autogen.sh}
   end
 
-  file "#{LIBSODIUM_PATH}/libsodium.a" => 'build/libsodium/Makefile' do
-    sh 'cd build/libsodium && make'
+  file "#{LIBSODIUM_BUILD}/Makefile" => "#{LIBSODIUM_BUILD}/configure" do
+    sh %{cd #{LIBSODIUM_BUILD} && ./configure}
   end
 
-  file LIBSODIUM => "#{LIBSODIUM_PATH}/libsodium.a"
+  file LIBSODIUM => "#{LIBSODIUM_BUILD}/Makefile" do
+    sh %{cd #{LIBSODIUM_BUILD} && make}
+  end
 
   task :compile => LIBSODIUM
+
+  task :clean do
+    sh %{cd #{LIBSODIUM_BUILD} && make mostlyclean}
+  end
+
+  task :clobber do
+    CLOBBER.add 'build'
+  end
 end
 
-CLEAN.add 'build'
-CLEAN.add LIBSODIUM_TARBALL
-
-CLOBBER.add LIBSODIUM
+task :clean   => 'sodium:clean'
+task :clobber => 'sodium:clobber'
