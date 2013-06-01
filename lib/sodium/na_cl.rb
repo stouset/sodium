@@ -1,14 +1,10 @@
 require 'sodium'
-require 'yaml'
 require 'ffi'
+require 'yaml'
 
 module Sodium::NaCl
   CONFIG_PATH = File.expand_path('../../../config/nacl_ffi.yml', __FILE__)
   CONFIG      = YAML.load_file(CONFIG_PATH)
-
-  extend FFI::Library
-
-  ffi_lib 'sodium'
 
   def self._install_default(delegate, configuration)
     family    = configuration[:family]
@@ -93,6 +89,17 @@ module Sodium::NaCl
 end
 
 module Sodium::NaCl
+  extend FFI::Library
+
+  ffi_lib FFI::Library::LIBC
+  ffi_lib 'sodium'
+
+
+  attach_function 'sodium_init',    [],                  :void
+  attach_function 'sodium_memzero', [:pointer, :size_t], :void
+  attach_function 'mlock',          [:pointer, :size_t], :int
+  sodium_init
+
   CONFIG.each do |configuration|
     delegate = self._load_class configuration[:class]
 
