@@ -24,7 +24,7 @@ describe Sodium::Auth do
     sodium_mock_default(self.klass) do |klass, mock|
       mock.expect :[], 0, [:KEYBYTES]
 
-      klass.key.length.must_equal 0
+      klass.key.must_equal ''
     end
   end
 

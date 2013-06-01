@@ -58,3 +58,18 @@
 
   :primitives:
     - :Poly1305
+
+- :class    : Sodium::SecretBox
+  :family   : crypto_secretbox
+  :constants:
+    - KEYBYTES
+    - NONCEBYTES
+    - ZEROBYTES
+    - BOXZEROBYTES
+
+  :functions:
+    ~    : [ pointer, pointer, ulong_long, pointer, pointer, int ]
+    :open: [ pointer, pointer, ulong_long, pointer, pointer, int ]
+
+  :primitives:
+    - :XSalsa20Poly1305
