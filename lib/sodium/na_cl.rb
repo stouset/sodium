@@ -10,9 +10,76 @@ module Sodium::NaCl
 
   ffi_lib 'sodium'
 
-  def self.attach_method(klass, delegate, method, implementation)
-    self._metaclass(klass).send :define_method, method do |*a, &b|
-      delegate.send(implementation, *a, &b) == 0
+  def self._install_default(delegate, configuration)
+    family    = configuration[:family]
+    method    = _install_function delegate, family, nil, :PRIMITIVE, [ :string ]
+    primitive = delegate.send(method)
+  rescue FFI::NotFoundError
+    primitive = configuration[:primitives].first
+  ensure
+    delegate.const_set :DEFAULT, primitive.to_s.downcase.to_sym
+  end
+
+  def self._install_primitives(delegate, configuration)
+    configuration[:primitives].each do |primitive|
+      subclass = Class.new(delegate) do
+        def self.[](name)
+          self.const_get(name)
+        end
+      end
+
+      delegate.const_set primitive, subclass
+
+      _install_constants subclass, configuration[:family], primitive,
+        configuration[:constants]
+
+      _install_functions subclass, configuration[:family], primitive,
+        configuration[:functions]
+    end
+  end
+
+  def self._install_constants(subclass, family, primitive, constants)
+    constants = constants.inject(
+      :PRIMITIVE => :string
+    ) {|hash, constant| hash.update(constant => :size_t) }
+
+    constants.each_pair do |name, type|
+      _install_constant(subclass, family, primitive, name, type)
+    end
+  end
+
+  def self._install_constant(subclass, family, primitive, name, type)
+    method = _install_function subclass, family, primitive, name, [ type ]
+
+    family = family.to_s.upcase
+    name   = name.to_s.upcase
+    value  = subclass.send(method)
+
+    self.    const_set("#{family}_#{primitive}_#{name}", value)
+    subclass.const_set(name,                             value)
+  end
+
+  def self._install_functions(subclass, family, primitive, methods)
+    methods.each do |name, arguments|
+      _install_function(subclass, family, primitive, name, arguments, &:zero?)
+    end
+  end
+
+  def self._install_function(subclass, family, primitive, name, arguments, &converter)
+    imp       = [ family, primitive, name ].compact.join('_').downcase
+    meth      = [ 'nacl',            name ].compact.join('_').downcase
+    arguments = arguments.map(&:to_sym)
+
+    self.attach_function imp, arguments[0..-2], arguments.last
+    self.attach_method   imp, self, subclass, meth, &converter
+
+    meth
+  end
+
+  def self.attach_method(implementation, nacl, delegate, method)
+    self._metaclass(delegate).send :define_method, method do |*a, &b|
+      value = nacl.send(implementation, *a, &b)
+      block_given? ? yield(value) : value
     end
   end
 
@@ -23,64 +90,13 @@ module Sodium::NaCl
   def self._metaclass(klass)
     (class << klass; self; end)
   end
+end
 
-  def self._install_default(scope, primitive)
-    scope.const_set :DEFAULT, primitive
-  end
-
-  def self._install_implementations(scope, configuration)
-    configuration[:implementations].each do |config|
-      klass = Class.new(scope) do
-        def self.[](name)
-          self.const_get(name)
-        end
-      end
-
-      family         = configuration[:family]
-      primitive      = config[:primitive]
-      implementation = config[:implementation]
-
-      scope.const_set config[:name], klass
-
-      _install_constants klass, family, primitive, implementation,
-        Hash[configuration[:constants].zip(config[:constants])]
-
-      _install_functions klass, family, primitive, implementation,
-        configuration[:functions]
-    end
-  end
-
-  def self._install_constants(klass, family, primitive, implementation, constants)
-    constants.update(
-      :PRIMITIVE      => primitive,
-      :IMPLEMENTATION => implementation
-    )
-
-    constants.each do |name, value|
-      family = family.to_s.upcase
-      name   = name.to_s.upcase
-
-      self. const_set("#{family}_#{primitive}_#{name}", value)
-      klass.const_set(name,                             value)
-    end
-  end
-
-  def self._install_functions(klass, family, primitive, implementation, methods)
-    methods.each do |name, arguments|
-      nacl      = self
-      imp       = [ family, primitive, implementation, name ].compact.join('_')
-      meth      = [ 'nacl',                            name ].compact.join('_')
-      arguments = arguments.map(&:to_sym)
-
-      self.attach_function imp,  arguments[0..-2], arguments.last
-      self.attach_method   klass, nacl, meth, imp
-    end
-  end
-
+module Sodium::NaCl
   CONFIG.each do |configuration|
-    scope = self._load_class configuration[:class]
+    delegate = self._load_class configuration[:class]
 
-    self._install_default         scope, configuration[:default][:primitive]
-    self._install_implementations scope, configuration
+    self._install_default    delegate, configuration
+    self._install_primitives delegate, configuration
   end
 end
