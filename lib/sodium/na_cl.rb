@@ -17,7 +17,7 @@ module Sodium::NaCl
   rescue FFI::NotFoundError
     primitive = configuration[:primitives].first
   ensure
-    delegate.const_set :DEFAULT, primitive.downcase.to_sym
+    delegate.const_set :DEFAULT, primitive.to_s.downcase.to_sym
   end
 
   def self._install_primitives(delegate, configuration)
