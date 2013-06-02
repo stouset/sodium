@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe Sodium::Auth::HMACSHA256 do
+  include SodiumTestHelpers
+
   subject { self.klass.new(self.key) }
 
   let(:klass)     { Sodium::Auth::HMACSHA256 }
@@ -11,9 +13,9 @@ describe Sodium::Auth::HMACSHA256 do
       :KEYBYTES => 32, }
   end
 
-  let(:key)           { Base64.decode64 'XMfWD8/yrcNDzJyGhxRIwi5tSGKf8D0ul9FyX/djvjg=' }
-  let(:authenticator) { Base64.decode64 '6WDKvxKevcZts0Yc1HWGnylNYEpcxPO9tVtApEK8XWc=' }
-  let(:plaintext)     { 'message' }
+  let_64(:key)           { 'XMfWD8/yrcNDzJyGhxRIwi5tSGKf8D0ul9FyX/djvjg=' }
+  let_64(:authenticator) { '6WDKvxKevcZts0Yc1HWGnylNYEpcxPO9tVtApEK8XWc=' }
+  let_64(:plaintext)     { 'bWVzc2FnZQ==' }
 
   it '::primitive must be correct' do
     self.klass.primitive.must_equal self.primitive
@@ -26,14 +28,14 @@ describe Sodium::Auth::HMACSHA256 do
   end
 
   it 'must mint keys' do
-    self.klass.key.length.
+    self.klass.key.bytesize.
       must_equal self.klass[:KEYBYTES]
   end
 
   it 'must generate authenticators' do
     self.subject.auth(
       self.plaintext
-    ).must_equal self.authenticator
+    ).to_str.must_equal self.authenticator
   end
 
   it 'must verify authenticators' do

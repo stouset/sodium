@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe Sodium::Hash::SHA512 do
+  include SodiumTestHelpers
+
   let (:klass)     { Sodium::Hash::SHA512 }
   let (:primitive) { :sha512 }
 
@@ -8,14 +10,12 @@ describe Sodium::Hash::SHA512 do
     { :BYTES => 64 }
   end
 
-  let :hash do
-    Base64.decode64 %{
-      +Nr1ejNHzE1rnVdbMf5gd+LLSH9gqWIzwIy0edvzFTjMkV7G1IvbqpbdwaFt
-      tPT5bzcnbPyzUQuCRiQXcNWVLA==
-    }
+  let_64(:hash) do
+    %{ +Nr1ejNHzE1rnVdbMf5gd+LLSH9gqWIzwIy0edvzFTjMkV7G1IvbqpbdwaFt
+       tPT5bzcnbPyzUQuCRiQXcNWVLA== }
   end
 
-  let(:plaintext) { 'message' }
+  let_64(:plaintext) { 'bWVzc2FnZQ==' }
 
   it '::primitive must be correct' do
     self.klass.primitive.must_equal self.primitive
@@ -30,6 +30,6 @@ describe Sodium::Hash::SHA512 do
   it 'must generate hashes' do
     self.klass.hash(
       self.plaintext
-    ).must_equal self.hash
+    ).to_str.must_equal self.hash
   end
 end

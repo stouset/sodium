@@ -2,10 +2,12 @@ module Sodium
   class Error       < ::StandardError; end
   class LengthError < Error;           end
   class CryptoError < Error;           end
+  class MemoryError < Error;           end
 end
 
 require 'sodium/delegate'
-require 'sodium/util'
+
+require 'sodium/buffer'
 
 require 'sodium/auth'
 require 'sodium/box'

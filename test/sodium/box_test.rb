@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe Sodium::Box do
+  include SodiumTestHelpers
+
   subject       { self.klass.new(*self.keypair) }
   let(:klass)   { Sodium::Box }
   let(:keypair) { self.klass.keypair }
@@ -29,23 +31,23 @@ describe Sodium::Box do
 
       sk, pk = klass.keypair
 
-      sk.must_equal ''
-      pk.must_equal ''
+      sk.to_str.must_equal ''
+      pk.to_str.must_equal ''
     end
   end
 
   it 'must raise when instantiating with an invalid keypair' do
     secret_key, public_key = self.keypair
 
-    lambda { self.klass.new(secret_key[0..-2], public_key) }.
+    lambda { self.klass.new(secret_key.to_str[0..-2], public_key) }.
       must_raise Sodium::LengthError
 
-    lambda { self.klass.new(secret_key, public_key[0..-2]) }.
+    lambda { self.klass.new(secret_key, public_key.to_str[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
   it 'must raise when receiving an invalid nonce' do
-    lambda { self.subject.box('message', self.subject.nonce[0..-2]) }.
+    lambda { self.subject.box('message', self.subject.nonce.to_str[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
@@ -94,7 +96,7 @@ describe Sodium::Box do
     end
   end
 
-    it 'must raise when failing to open a box with a shared key' do
+  it 'must raise when failing to open a box with a shared key' do
     sodium_stub_failure(self.klass, :nacl_open_afternm) do
       lambda do
         key        = self.subject.beforenm
