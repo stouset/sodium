@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe Sodium::OneTimeAuth::Poly1305 do
+  include SodiumTestHelpers
+
   subject { self.klass.new(self.key) }
 
   let(:klass)     { Sodium::OneTimeAuth::Poly1305 }
@@ -11,9 +13,9 @@ describe Sodium::OneTimeAuth::Poly1305 do
       :KEYBYTES => 32, }
   end
 
-  let(:key)           { Base64.decode64 'tZUeTVtSHOfgOei4DUwCt10xqrIYhALpO08NIDMWFB0=' }
-  let(:authenticator) { Base64.decode64 'n+6StqC6SLRuLT8YZoQoFw==' }
-  let(:plaintext)     { 'message' }
+  let_64(:key)           { 'tZUeTVtSHOfgOei4DUwCt10xqrIYhALpO08NIDMWFB0=' }
+  let_64(:authenticator) { 'n+6StqC6SLRuLT8YZoQoFw==' }
+  let_64(:plaintext)     { 'bWVzc2FnZQ==' }
 
   it '::primitive must be correct' do
     self.klass.primitive.must_equal self.primitive
@@ -26,14 +28,14 @@ describe Sodium::OneTimeAuth::Poly1305 do
   end
 
   it 'must mint keys' do
-    self.klass.key.length.
+    self.klass.key.bytesize.
       must_equal self.klass::KEYBYTES
   end
 
   it 'must generate authenticators' do
     self.subject.one_time_auth(
       self.plaintext
-    ).must_equal self.authenticator
+    ).to_str.must_equal self.authenticator
   end
 
   it 'must verify authenticators' do
