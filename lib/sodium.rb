@@ -8,7 +8,6 @@ end
 require 'sodium/delegate'
 
 require 'sodium/buffer'
-require 'sodium/util'
 
 require 'sodium/auth'
 require 'sodium/box'

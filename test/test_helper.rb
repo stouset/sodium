@@ -42,5 +42,3 @@ module SodiumTestHelpers
     klass.implementation.stub(method, false, &block)
   end
 end
-
-include SodiumTestHelpers
