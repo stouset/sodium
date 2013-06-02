@@ -1,8 +1,11 @@
 require 'test_helper'
 
 describe Sodium::Hash do
+  include SodiumTestHelpers
+
   let(:klass)     { Sodium::Hash }
-  let(:plaintext) { 'message' }
+
+  let_64(:plaintext) { 'bWVzc2FnZQ==' }
 
   it 'must default to the SHA512 implementation' do
     self.klass.implementation.
@@ -17,9 +20,9 @@ describe Sodium::Hash do
   it 'must hash from the default implementation' do
     sodium_mock_default(self.klass) do |klass, mock|
       mock.expect :[],   0,  [ :BYTES ]
-      mock.expect :nacl, '', [ String, self.plaintext, self.plaintext.length ]
+      mock.expect :nacl, '', [ String, self.plaintext, self.plaintext.bytesize ]
 
-      klass.hash(self.plaintext).length.must_equal 0
+      klass.hash(self.plaintext).to_str.must_equal ''
     end
   end
 

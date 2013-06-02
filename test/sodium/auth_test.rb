@@ -1,6 +1,8 @@
 require 'test_helper'
 
 describe Sodium::Auth do
+  include SodiumTestHelpers
+
   subject     { self.klass.new(self.key) }
   let(:klass) { Sodium::Auth             }
   let(:key)   { self.klass.key           }
@@ -24,12 +26,12 @@ describe Sodium::Auth do
     sodium_mock_default(self.klass) do |klass, mock|
       mock.expect :[], 0, [:KEYBYTES]
 
-      klass.key.must_equal ''
+      klass.key.to_str.must_equal ''
     end
   end
 
   it 'must raise when instantiating with an invalid key' do
-    lambda { self.klass.new(self.key[0..-2]) }.
+    lambda { self.klass.new(self.key.to_str[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
