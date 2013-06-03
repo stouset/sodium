@@ -28,6 +28,15 @@ describe Sodium::Buffer do
     subject.empty(40).to_str.must_equal("\0" * 40)
   end
 
+  it '::empty must yield to a block when given' do
+    mock = MiniTest::Mock.new
+    mock.expect :flag, nil
+
+    subject.empty(5) {|buffer| mock.flag }
+
+    mock.verify
+  end
+
   it '::new must create a buffer containing the specified string' do
     subject.new('xyz'     ).to_str.must_equal('xyz')
     subject.new('xyz' * 50).to_str.must_equal('xyz' * 50)
