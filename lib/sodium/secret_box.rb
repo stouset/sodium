@@ -16,35 +16,33 @@ class Sodium::SecretBox
   end
 
   def secret_box(message, nonce)
-    message    = self.class._message(message)
-    nonce      = self.class._nonce(nonce)
-    ciphertext = Sodium::Buffer.empty(message.bytesize)
+    message = self.class._message(message)
+    nonce   = self.class._nonce(nonce)
 
-    self.implementation.nacl(
-      ciphertext.to_str,
-      message.to_str,
-      message.to_str.bytesize,
-      nonce.to_str,
-      @key.to_str
-    ) or raise Sodium::CryptoError, 'failed to close the secret box'
-
-    ciphertext.unpad self.implementation[:BOXZEROBYTES]
+    Sodium::Buffer.empty(message.bytesize) do |ciphertext|
+      self.implementation.nacl(
+        ciphertext.to_str,
+        message.to_str,
+        message.to_str.bytesize,
+        nonce.to_str,
+        @key.to_str
+      ) or raise Sodium::CryptoError, 'failed to close the secret box'
+    end.unpad self.implementation[:BOXZEROBYTES]
   end
 
   def open(ciphertext, nonce)
     ciphertext = self.class._ciphertext(ciphertext)
     nonce      = self.class._nonce(nonce)
-    message    = Sodium::Buffer.empty(ciphertext.bytesize)
 
-    self.implementation.nacl_open(
-      message.to_str,
-      ciphertext.to_str,
-      ciphertext.to_str.bytesize,
-      nonce.to_str,
-      @key.to_str
-    ) or raise Sodium::CryptoError, 'failed to open the secret box'
-
-    message.unpad self.implementation[:ZEROBYTES]
+    Sodium::Buffer.empty(ciphertext.bytesize) do |message|
+      self.implementation.nacl_open(
+        message.to_str,
+        ciphertext.to_str,
+        ciphertext.to_str.bytesize,
+        nonce.to_str,
+        @key.to_str
+      ) or raise Sodium::CryptoError, 'failed to open the secret box'
+    end.unpad self.implementation[:ZEROBYTES]
   end
 
   private

@@ -3,15 +3,15 @@ require 'securerandom'
 
 class Sodium::Buffer
   def self.key(size)
-    self.new SecureRandom.random_bytes(size)
+    Sodium::Random.bytes(size)
   end
 
   def self.nonce(size)
-    self.new SecureRandom.random_bytes(size)
+    Sodium::Random.bytes(size)
   end
 
   def self.empty(size)
-    self.new("\0" * size)
+    self.new("\0" * size).tap {|buffer| yield buffer if block_given? }
   end
 
   def self.new(bytes, size = bytes.bytesize)
