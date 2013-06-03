@@ -24,34 +24,32 @@ class Sodium::Box
     shared_key = _shared_key(shared_key)
     message    = _message(message)
     nonce      = _nonce(nonce)
-    ciphertext = Sodium::Buffer.empty(message.bytesize)
 
-    self.implementation.nacl_afternm(
-      ciphertext.to_str,
-      message.to_str,
-      message.to_str.bytesize,
-      nonce.to_str,
-      shared_key.to_str
-    ) or raise Sodium::CryptoError, 'failed to close the box'
-
-    ciphertext.unpad self.implementation[:BOXZEROBYTES]
+    Sodium::Buffer.empty(message.bytesize) do |ciphertext|
+      self.implementation.nacl_afternm(
+        ciphertext.to_str,
+        message.to_str,
+        message.to_str.bytesize,
+        nonce.to_str,
+        shared_key.to_str
+      ) or raise Sodium::CryptoError, 'failed to close the box'
+    end.unpad self.implementation[:BOXZEROBYTES]
   end
 
   def self.open_afternm(shared_key, ciphertext, nonce)
     shared_key = _shared_key(shared_key)
     ciphertext = _ciphertext(ciphertext)
     nonce      = _nonce(nonce)
-    message    = Sodium::Buffer.empty(ciphertext.bytesize)
 
-    self.implementation.nacl_open_afternm(
-      message.to_str,
-      ciphertext.to_str,
-      ciphertext.to_str.bytesize,
-      nonce.to_str,
-      shared_key.to_str
-    ) or raise Sodium::CryptoError, 'failed to open the box'
-
-    message.unpad self.implementation[:ZEROBYTES]
+    Sodium::Buffer.empty(ciphertext.bytesize) do |message|
+      self.implementation.nacl_open_afternm(
+        message.to_str,
+        ciphertext.to_str,
+        ciphertext.to_str.bytesize,
+        nonce.to_str,
+        shared_key.to_str
+      ) or raise Sodium::CryptoError, 'failed to open the box'
+    end.unpad self.implementation[:ZEROBYTES]
   end
 
 
@@ -65,49 +63,45 @@ class Sodium::Box
   end
 
   def box(message, nonce)
-    message    = self.class._message(message)
-    nonce      = self.class._nonce(nonce)
-    ciphertext = Sodium::Buffer.empty(message.bytesize)
+    message = self.class._message(message)
+    nonce   = self.class._nonce(nonce)
 
-    self.implementation.nacl(
-      ciphertext.to_str,
-      message.to_str,
-      message.to_str.bytesize,
-      nonce.to_str,
-      @public_key.to_str,
-      @secret_key.to_str
-    ) or raise Sodium::CryptoError, 'failed to close the box'
-
-    ciphertext.unpad self.implementation[:BOXZEROBYTES]
+    Sodium::Buffer.empty(message.bytesize) do |ciphertext|
+      self.implementation.nacl(
+        ciphertext.to_str,
+        message.to_str,
+        message.to_str.bytesize,
+        nonce.to_str,
+        @public_key.to_str,
+        @secret_key.to_str
+      ) or raise Sodium::CryptoError, 'failed to close the box'
+    end.unpad self.implementation[:BOXZEROBYTES]
   end
 
   def open(ciphertext, nonce)
     ciphertext = self.class._ciphertext(ciphertext)
     nonce      = self.class._nonce(nonce)
-    message    = Sodium::Buffer.empty(ciphertext.bytesize)
 
-    self.implementation.nacl_open(
-      message.to_str,
-      ciphertext.to_str,
-      ciphertext.to_str.bytesize,
-      nonce.to_str,
-      @public_key.to_str,
-      @secret_key.to_str
-    ) or raise Sodium::CryptoError, 'failed to open the box'
-
-    message.unpad self.implementation[:ZEROBYTES]
+    Sodium::Buffer.empty(ciphertext.bytesize) do |message|
+      self.implementation.nacl_open(
+        message.to_str,
+        ciphertext.to_str,
+        ciphertext.to_str.bytesize,
+        nonce.to_str,
+        @public_key.to_str,
+        @secret_key.to_str
+      ) or raise Sodium::CryptoError, 'failed to open the box'
+    end.unpad self.implementation[:ZEROBYTES]
   end
 
   def beforenm
-    shared_key = Sodium::Buffer.empty self.implementation[:BEFORENMBYTES]
-
-    self.implementation.nacl_beforenm(
-      shared_key.to_str,
-      @public_key.to_str,
-      @secret_key.to_str
-    ) or raise Sodium::CryptoError, 'failed to create a shared key'
-
-    shared_key
+    Sodium::Buffer.empty self.implementation[:BEFORENMBYTES] do |shared_key|
+      self.implementation.nacl_beforenm(
+        shared_key.to_str,
+        @public_key.to_str,
+        @secret_key.to_str
+      ) or raise Sodium::CryptoError, 'failed to create a shared key'
+    end
   end
 
   private
