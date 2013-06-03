@@ -3,11 +3,11 @@ require 'securerandom'
 
 class Sodium::Buffer
   def self.key(size)
-    self.new SecureRandom.random_bytes(size)
+    Sodium::Random.bytes(size)
   end
 
   def self.nonce(size)
-    self.new SecureRandom.random_bytes(size)
+    Sodium::Random.bytes(size)
   end
 
   def self.empty(size)
