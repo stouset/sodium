@@ -74,11 +74,11 @@ class Sodium::Buffer
   end
 
   def self._mwipe!(buffer)
-    Sodium::NaCl.sodium_memzero(buffer, buffer.bytesize)
+    Sodium::FFI::Crypto.sodium_memzero(buffer, buffer.bytesize)
   end
 
   def self._mlock!(buffer)
-    Sodium::NaCl.mlock(buffer, buffer.bytesize) or
+    Sodium::FFI::LibC.mlock(buffer, buffer.bytesize) or
       raise Sodium::MemoryError, 'could not mlock(2) secure buffer into memory'
   end
 end
