@@ -73,3 +73,18 @@
 
   :primitives:
     - :XSalsa20Poly1305
+
+- :class    : Sodium::Sign
+  :family   : crypto_sign
+  :constants:
+    - BYTES
+    - PUBLICKEYBYTES
+    - SECRETKEYBYTES
+
+  :functions:
+    ~      : [ pointer, pointer, pointer, ulong_long, pointer, int ]
+    open   : [ pointer, pointer, pointer, ulong_long, pointer, int ]
+    keypair: [ pointer, pointer, int ]
+
+  :primitives:
+    - :Ed25519
