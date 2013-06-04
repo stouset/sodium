@@ -5,8 +5,8 @@
     - KEYBYTES
   
   :functions: 
-    ~      : [ pointer, pointer, ulong_long, pointer, int ]
-    :verify: [ pointer, pointer, ulong_long, pointer, int ]
+    ~      : [ buffer_out, buffer_in, ulong_long, buffer_in, int ]
+    :verify: [ buffer_in , buffer_in, ulong_long, buffer_in, int ]
 
   :primitives:
     - :HMACSHA512256
@@ -24,12 +24,12 @@
     - MACBYTES
     
   :functions:
-    ~            : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
-    :open        : [ pointer, pointer, ulong_long, pointer, pointer, pointer, int ]
-    :keypair     : [ pointer, pointer, int ]
-    :beforenm    : [ pointer, pointer, pointer, int ]
-    :afternm     : [ pointer, pointer, ulong_long, pointer, pointer, int ]
-    :open_afternm: [ pointer, pointer, ulong_long, pointer, pointer, int ]
+    ~            : [ buffer_out, buffer_in, ulong_long, buffer_in, buffer_in, buffer_in, int ]
+    :open        : [ buffer_out, buffer_in, ulong_long, buffer_in, buffer_in, buffer_in, int ]
+    :keypair     : [ buffer_out, buffer_out, int ]
+    :beforenm    : [ buffer_out, buffer_in, buffer_in, int ]
+    :afternm     : [ buffer_out, buffer_in, ulong_long, buffer_in, buffer_in, int ]
+    :open_afternm: [ buffer_out, buffer_in, ulong_long, buffer_in, buffer_in, int ]
 
   :primitives:
     - :Curve25519XSalsa20Poly1305
@@ -40,7 +40,7 @@
     - BYTES
 
   :functions:
-    ~: [ pointer, pointer, ulong_long, int ]
+    ~: [ buffer_out, buffer_in, ulong_long, int ]
 
   :primitives:
     - :SHA512
@@ -53,8 +53,8 @@
     - KEYBYTES
 
   :functions:
-    ~      : [ pointer, pointer, ulong_long, pointer, int ]
-    :verify: [ pointer, pointer, ulong_long, pointer, int ]
+    ~      : [ buffer_out, buffer_in, ulong_long, buffer_in, int ]
+    :verify: [ buffer_in , buffer_in, ulong_long, buffer_in, int ]
 
   :primitives:
     - :Poly1305
@@ -68,8 +68,8 @@
     - BOXZEROBYTES
 
   :functions:
-    ~    : [ pointer, pointer, ulong_long, pointer, pointer, int ]
-    :open: [ pointer, pointer, ulong_long, pointer, pointer, int ]
+    ~    : [ buffer_out, buffer_in, ulong_long, buffer_in, buffer_in, int ]
+    :open: [ buffer_out, buffer_in, ulong_long, buffer_in, buffer_in, int ]
 
   :primitives:
     - :XSalsa20Poly1305
@@ -82,9 +82,9 @@
     - SECRETKEYBYTES
 
   :functions:
-    ~      : [ pointer, pointer, pointer, ulong_long, pointer, int ]
-    open   : [ pointer, pointer, pointer, ulong_long, pointer, int ]
-    keypair: [ pointer, pointer, int ]
+    ~      : [ buffer_out, buffer_out, buffer_in, ulong_long, buffer_in, int ]
+    open   : [ buffer_out, buffer_out, buffer_in, ulong_long, buffer_in, int ]
+    keypair: [ buffer_out, buffer_out, int ]
 
   :primitives:
     - :Ed25519
