@@ -39,6 +39,13 @@ class Sodium::Buffer
       self.class._finalizer(@bytes)
   end
 
+  def +(other)
+    Sodium::Buffer.new(
+      self.to_str +
+      Sodium::Buffer.new(other).to_str
+    )
+  end
+
   def pad(size)
     self.class.new(
       ("\0" * size) + @bytes
