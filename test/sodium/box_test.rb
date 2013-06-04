@@ -28,7 +28,6 @@ describe Sodium::Box do
       mock.expect :[],           0,    [:PUBLICKEYBYTES]
       mock.expect :[],           0,    [:SECRETKEYBYTES]
 
-
       sk, pk = klass.keypair
 
       sk.to_str.must_equal ''
