@@ -7,15 +7,10 @@ class Sodium::Box
     public_key = Sodium::Buffer.empty self.implementation[:PUBLICKEYBYTES]
     secret_key = Sodium::Buffer.empty self.implementation[:SECRETKEYBYTES]
 
-    # according to the libsodium docs, crypto_box_keypair is not
-    # thread-safe due to its use of the randombytes API, so we ensure
-    # it uses the same mutex as our own uses
-    Sodium::Random.synchronize do
-      self.implementation.nacl_keypair(
-        public_key.to_str,
-        secret_key.to_str
-      ) or raise Sodium::CryptoError, 'failed to generate a keypair'
-    end
+    self.implementation.nacl_keypair(
+      public_key.to_str,
+      secret_key.to_str
+    ) or raise Sodium::CryptoError, 'failed to generate a keypair'
 
     return secret_key, public_key
   end
