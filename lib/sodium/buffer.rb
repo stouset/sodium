@@ -39,6 +39,13 @@ class Sodium::Buffer
       self.class._finalizer(@bytes)
   end
 
+  def +(other)
+    Sodium::Buffer.new(
+      self.to_str +
+      Sodium::Buffer.new(other).to_str
+    )
+  end
+
   def pad(size)
     self.class.new(
       ("\0" * size) + @bytes
@@ -46,11 +53,61 @@ class Sodium::Buffer
   end
 
   def unpad(size)
-    self.class.new(
-      @bytes.respond_to?(:byteslice) ?
-        @bytes.byteslice(size .. -1) :
-        @bytes.unpack("@#{size}a*").first # 1.8
+    self.byteslice(size .. -1)
+  end
+
+  def byteslice(*args)
+    return self.class.new(
+      @bytes.byteslice(*args).to_s
+    ) if (
+      # Ruby 1.8 doesn't have byteslice
+      @bytes.respond_to?(:byteslice) or
+
+      # JRuby reuses memory regions when calling byteslice, which
+      # results in them getting cleared when the new buffer initializes
+      defined?(RUBY_ENGINE) and RUBY_ENGINE == 'java'
     )
+
+    raise ArgumentError, 'wrong number of arguments (0 for 1..2)' if
+      args.length < 1 or args.length > 2
+
+    start, finish = case
+      when args[1]
+        # matches: byteslice(start, size)
+        start  = args[0].to_i
+        size   = args[1].to_i
+
+        # if size is less than 1, finish needs to be small enough that
+        # `finish - start + 1 <= 0` even after finish is wrapped
+        # around to account for negative indices
+        finish = size > 0  ?
+          start + size - 1 :
+          - self.bytesize.succ
+
+        [ start, finish ]
+      when args[0].kind_of?(Range)
+        # matches: byteslice(start .. finish)
+        # matches: byteslice(start ... finish)
+        range  = args[0]
+        start  = range.begin.to_i
+        finish = range.exclude_end? ? range.end.to_i - 1 : range.end.to_i
+
+        [ start, finish ]
+      else
+        # matches: byteslice(start)
+        [ args[0].to_i, args[0].to_i ]
+    end
+
+    # ensure negative values are wrapped around explicitly
+    start  += self.bytesize if start  < 0
+    finish += self.bytesize if finish < 0
+    size    = finish - start + 1
+
+    bytes = (start >= 0 and size >= 0)         ?
+      @bytes.unpack("@#{start}a#{size}").first :
+      ''
+
+    self.class.new(bytes)
   end
 
   def bytesize

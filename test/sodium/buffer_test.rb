@@ -68,6 +68,44 @@ describe Sodium::Buffer do
     subject.new("\0\0\0s").unpad(3).to_str.must_equal 's'
   end
 
+  it '#byteslice must accept an indivdual byte offset to return' do
+    subject.new('xyz').tap do |buffer|
+      buffer.byteslice(-4).to_str.must_equal ''
+      buffer.byteslice(-3).to_str.must_equal 'x'
+      buffer.byteslice(-2).to_str.must_equal 'y'
+      buffer.byteslice(-1).to_str.must_equal 'z'
+      buffer.byteslice( 0).to_str.must_equal 'x'
+      buffer.byteslice( 1).to_str.must_equal 'y'
+      buffer.byteslice( 2).to_str.must_equal 'z'
+      buffer.byteslice( 3).to_str.must_equal ''
+    end
+  end
+
+  it '#byteslice must accept ranges of bytes to return' do
+    subject.new('xyz').tap do |buffer|
+      buffer.byteslice( 0.. 0).to_str.must_equal 'x'
+      buffer.byteslice( 0.. 1).to_str.must_equal 'xy'
+      buffer.byteslice( 0.. 2).to_str.must_equal 'xyz'
+      buffer.byteslice( 0.. 3).to_str.must_equal 'xyz'
+      buffer.byteslice( 1..-1).to_str.must_equal 'yz'
+      buffer.byteslice( 2..-2).to_str.must_equal ''
+      buffer.byteslice(-3..-1).to_str.must_equal 'xyz'
+      buffer.byteslice(-4.. 1).to_str.must_equal ''
+    end
+  end
+
+  it '#byteslice must accept an offset and number of bytes to return' do
+    subject.new('xyz').tap do |buffer|
+      buffer.byteslice( 0,  0).to_str.must_equal ''
+      buffer.byteslice( 0,  1).to_str.must_equal 'x'
+      buffer.byteslice( 0,  3).to_str.must_equal 'xyz'
+      buffer.byteslice( 2,  4).to_str.must_equal 'z'
+      buffer.byteslice( 2,  1).to_str.must_equal 'z'
+      buffer.byteslice(-2,  1).to_str.must_equal 'y'
+      buffer.byteslice( 0, -1).to_str.must_equal ''
+    end
+  end
+
   it '#bytesize must return its length' do
     subject.new('testing').bytesize.must_equal 7
   end

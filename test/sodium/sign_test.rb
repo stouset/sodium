@@ -42,13 +42,6 @@ describe Sodium::Sign do
       must_raise Sodium::LengthError
   end
 
-  it 'must raise when opening a signature with an invalid key' do
-    public_key = self.keypair.last
-
-    lambda { self.klass.open(public_key.to_str[0..-2], 'message') }.
-      must_raise Sodium::LengthError
-  end
-
   it 'must raise when failing to generate keypairs' do
     sodium_stub_failure(self.klass, :nacl_keypair) do
       lambda { self.keypair }.
@@ -59,13 +52,6 @@ describe Sodium::Sign do
   it 'must raise when failing to sign a message' do
     sodium_stub_failure(self.klass, :nacl) do
       lambda { self.subject.sign('message') }.
-        must_raise Sodium::CryptoError
-    end
-  end
-
-  it 'must raise when failing to open a signature' do
-    sodium_stub_failure(self.klass, :nacl_open) do
-      lambda { self.klass.open(self.keypair.last, 'message') }.
         must_raise Sodium::CryptoError
     end
   end
