@@ -49,7 +49,7 @@ class Sodium::Sign
 
     # signatures actually encode the message itself at the end, so we
     # slice off only the signature bytes
-    Sodium::Buffer.new signature.to_str.byteslice(
+    signature.byteslice(
       0,
       slen.read_ulong_long - message.to_str.bytesize
     )
