@@ -15,9 +15,9 @@ class Sodium::Sign
     return secret_key, public_key
   end
 
-  def self.open(key, signature)
+  def self.verify(key, message, signature)
     key       = self._public_key(key)
-    signature = self._signature(signature)
+    signature = self._signature(message, signature)
     message   = Sodium::Buffer.empty(signature.bytesize)
     mlen      = FFI::MemoryPointer.new(:ulong_long, 1, true)
 
@@ -27,9 +27,7 @@ class Sodium::Sign
       signature.to_str,
       signature.to_str.bytesize,
       key.to_str
-    ) or raise Sodium::CryptoError, 'failed to open the signature'
-
-    Sodium::Buffer.new message.to_str.slice(0, mlen.read_ulong_long)
+    )
   end
 
   def initialize(key)
@@ -49,7 +47,12 @@ class Sodium::Sign
       @key.to_str
     ) or raise Sodium::CryptoError, 'failed to generate signature'
 
-    Sodium::Buffer.new signature.to_str.slice(0, slen.read_ulong_long)
+    # signatures actually encode the message itself at the end, so we
+    # slice off only the signature bytes
+    signature.byteslice(
+      0,
+      slen.read_ulong_long - message.to_str.bytesize
+    )
   end
 
   private
@@ -66,7 +69,7 @@ class Sodium::Sign
     Sodium::Buffer.new m
   end
 
-  def self._signature(s)
-    Sodium::Buffer.new s
+  def self._signature(m, s)
+    Sodium::Buffer.new(s) + m
   end
 end

@@ -19,7 +19,7 @@ describe Sodium::Sign::Ed25519 do
   let_64(:plaintext)  { 'bWVzc2FnZQ==' }
   let_64(:signature)  do
     %{ gBIV6VdlmL9aicHsrWMYhqGiQg3t1QGWmuj5oUNI2DN6FeaKKIkjPZ/N7vTM
-       R7ebY7+C7teQJMSrxlqTnrcnC21lc3NhZ2U= }
+       R7ebY7+C7teQJMSrxlqTnrcnCw== }
   end
 
   it '::primitive must be correct' do
@@ -45,8 +45,8 @@ describe Sodium::Sign::Ed25519 do
       must_equal self.signature
   end
 
-  it 'must open message signatures' do
-    self.klass.open(self.public_key, self.signature).to_str.
-      must_equal self.plaintext
+  it 'must verify message signatures' do
+    self.klass.verify(self.public_key, self.plaintext, self.signature).
+      must_equal true
   end
 end
