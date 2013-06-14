@@ -56,7 +56,27 @@ class Sodium::Buffer
     self.byteslice(size .. -1)
   end
 
-  def byteslice(*args)
+  def []=(offset, size, bytes)
+    raise ArgumentError, %{must only assign to existing bytes in the buffer} unless
+      self.bytesize >= offset + size
+
+    raise ArgumentError, %{must reassign only a fixed number of bytes} unless
+      size == bytes.bytesize
+
+    # ensure the original bytes get cleared
+    bytes = Sodium::Buffer.new(bytes)
+
+    Sodium::FFI::Memory.sodium_memput(
+      self.to_str,
+      bytes.to_str,
+      offset,
+      size
+    )
+
+    true
+  end
+
+  def [](*args)
     return self.class.new(
       @bytes.byteslice(*args).to_s
     ) if (
@@ -109,6 +129,8 @@ class Sodium::Buffer
 
     self.class.new(bytes)
   end
+
+  alias byteslice []
 
   def bytesize
     @bytes.bytesize
