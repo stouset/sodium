@@ -2,7 +2,9 @@ source 'https://rubygems.org/'
 
 gemspec
 
-gem 'pry'
+group :tools do
+  gem 'pry'
+end
 
 group :test do
   gem 'coveralls', :require => false

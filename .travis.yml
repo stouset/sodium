@@ -1,5 +1,7 @@
 script: bundle exec rake test
 
+bundler_args: --without tools
+
 env:
   - >
     LIBSODIUM_MIRROR="https://github.com/jedisct1/libsodium/tarball/%s"
