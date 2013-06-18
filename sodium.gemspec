@@ -15,6 +15,8 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`   .split("\n").map {|e| File.basename(e) }
   gem.test_files  = `git ls-files -- spec/*`  .split("\n")
 
+  gem.requirements << 'libsodium ~> 0.5'
+
   gem.add_dependency 'ffi', '~> 1'
 
   gem.add_development_dependency 'rake',     '~> 10'
