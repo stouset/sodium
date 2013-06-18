@@ -37,6 +37,32 @@ describe Sodium::Buffer do
     mock.verify
   end
 
+  it '::ljust must pad zero bytes on the end' do
+    subject.ljust('xyz', 5).to_str.must_equal "xyz\0\0"
+  end
+
+  it '::ljust must not pad bytes when not needed' do
+    subject.ljust('xyz', 2).to_str.must_equal 'xyz'
+  end
+
+  it '::rjust must pad zero bytes onto the front' do
+    subject.rjust('xyz', 5).to_str.must_equal "\0\0xyz"
+  end
+
+  it '::rjust must not pad bytes when not needed' do
+    subject.rjust('xyz', 2).to_str.must_equal 'xyz'
+  end
+
+  it '::lpad must prepend the required number of bytes' do
+    subject.lpad('xyz', 0).to_str.must_equal 'xyz'
+    subject.lpad('xyz', 2).to_str.must_equal "\0\0xyz"
+  end
+
+  it '::rpad must append the required number of bytes' do
+    subject.rpad('xyz', 0).to_str.must_equal 'xyz'
+    subject.rpad('xyz', 2).to_str.must_equal "xyz\0\0"
+  end
+
   it '::new must create a buffer containing the specified string' do
     subject.new('xyz'     ).to_str.must_equal('xyz')
     subject.new('xyz' * 50).to_str.must_equal('xyz' * 50)
