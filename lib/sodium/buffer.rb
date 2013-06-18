@@ -155,6 +155,9 @@ class Sodium::Buffer
     finish += self.bytesize if finish < 0
     size    = finish - start + 1
 
+    # this approach ensures the bytes are copied into new memory, so
+    # instantiating a new buffer doesn't clear the bytes in the
+    # existing buffer
     bytes = (start >= 0 and size >= 0)         ?
       @bytes.unpack("@#{start}a#{size}").first :
       ''
