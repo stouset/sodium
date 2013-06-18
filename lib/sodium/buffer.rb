@@ -64,10 +64,10 @@ class Sodium::Buffer
   end
 
   def +(other)
-    Sodium::Buffer.new(
-      self.to_str +
-      Sodium::Buffer.new(other).to_str
-    )
+    Sodium::Buffer.empty(self.bytesize + other.bytesize) do |buffer|
+      buffer[0,             self .bytesize] = self
+      buffer[self.bytesize, other.bytesize] = other
+    end
   end
 
   def ^(other)
@@ -84,10 +84,6 @@ class Sodium::Buffer
         other.bytesize
       )
     end
-  end
-
-  def unpad(size)
-    self.byteslice(size .. -1)
   end
 
   def []=(offset, size, bytes)
@@ -182,6 +178,10 @@ class Sodium::Buffer
 
   def pad(size)
     self.class.lpad(self, size)
+  end
+
+  def unpad(size)
+    self[size, self.bytesize - size]
   end
 
   private
