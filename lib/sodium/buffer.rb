@@ -168,6 +168,14 @@ class Sodium::Buffer
     @bytes.bytesize
   end
 
+  def rdrop(size)
+    self[0, self.bytesize - size]
+  end
+
+  def ldrop(size)
+    self[size, self.bytesize - size]
+  end
+
   def inspect
     # this appears to be equivalent to the default Object#inspect,
     # albeit without instance variables
@@ -176,14 +184,6 @@ class Sodium::Buffer
 
   def to_str
     @bytes.to_str
-  end
-
-  def pad(size)
-    self.class.lpad(self, size)
-  end
-
-  def unpad(size)
-    self[size, self.bytesize - size]
   end
 
   private

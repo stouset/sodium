@@ -28,7 +28,7 @@ class Sodium::Box
         nonce.to_str,
         shared_key.to_str
       ) or raise Sodium::CryptoError, 'failed to close the box'
-    end.unpad self.implementation[:BOXZEROBYTES]
+    end.ldrop self.implementation[:BOXZEROBYTES]
   end
 
   def self.open_afternm(shared_key, ciphertext, nonce)
@@ -44,7 +44,7 @@ class Sodium::Box
         nonce.to_str,
         shared_key.to_str
       ) or raise Sodium::CryptoError, 'failed to open the box'
-    end.unpad self.implementation[:ZEROBYTES]
+    end.ldrop self.implementation[:ZEROBYTES]
   end
 
 
@@ -70,7 +70,7 @@ class Sodium::Box
         @public_key.to_str,
         @secret_key.to_str
       ) or raise Sodium::CryptoError, 'failed to close the box'
-    end.unpad self.implementation[:BOXZEROBYTES]
+    end.ldrop self.implementation[:BOXZEROBYTES]
   end
 
   def open(ciphertext, nonce)
@@ -86,7 +86,7 @@ class Sodium::Box
         @public_key.to_str,
         @secret_key.to_str
       ) or raise Sodium::CryptoError, 'failed to open the box'
-    end.unpad self.implementation[:ZEROBYTES]
+    end.ldrop self.implementation[:ZEROBYTES]
   end
 
   def beforenm
@@ -114,11 +114,11 @@ class Sodium::Box
   end
 
   def self._message(m)
-    Sodium::Buffer.new(m).pad self.implementation[:ZEROBYTES]
+    Sodium::Buffer.lpad m, self.implementation[:ZEROBYTES]
   end
 
   def self._ciphertext(c)
-    Sodium::Buffer.new(c).pad self.implementation[:BOXZEROBYTES]
+    Sodium::Buffer.lpad c, self.implementation[:BOXZEROBYTES]
   end
 
   def self._nonce(n)

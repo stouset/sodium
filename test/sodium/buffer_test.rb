@@ -86,14 +86,6 @@ describe Sodium::Buffer do
   it '#initialize must wipe the buffer during finalization'
   it '#initialize must prevent the string from being paged to disk'
 
-  it '#pad bytes onto the front' do
-    subject.new('s').pad(3).to_str.must_equal "\0\0\0s"
-  end
-
-  it '#unpad bytes from the front' do
-    subject.new("\0\0\0s").unpad(3).to_str.must_equal 's'
-  end
-
   it '#[]= must allow replacement of byte ranges' do
     subject.new('xyz').tap {|b| b[0, 3] = 'abc' }.to_str.must_equal 'abc'
     subject.new('xyz').tap {|b| b[0, 2] = 'ab'  }.to_str.must_equal 'abz'
@@ -147,6 +139,14 @@ describe Sodium::Buffer do
 
   it '#[] must return its length' do
     subject.new('testing').bytesize.must_equal 7
+  end
+
+  it '#ldrop must drop bytes off the left' do
+    subject.new('xyz').ldrop(2).to_str.must_equal('z')
+  end
+
+  it '#rdrop must drop bytes off the right' do
+    subject.new('xyz').rdrop(2).to_str.must_equal('x')
   end
 
   it '#inspect must not reveal its instance variables' do
