@@ -61,6 +61,8 @@ class Sodium::Buffer
 
     ObjectSpace.define_finalizer self,
       self.class._finalizer(@bytes)
+
+    self.freeze
   end
 
   def +(other)
