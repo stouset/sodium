@@ -94,45 +94,58 @@ describe Sodium::Buffer do
     subject.new("\0\0\0s").unpad(3).to_str.must_equal 's'
   end
 
-  it '#byteslice must accept an indivdual byte offset to return' do
+  it '#[]= must allow replacement of byte ranges' do
+    subject.new('xyz').tap {|b| b[0, 3] = 'abc' }.to_str.must_equal 'abc'
+    subject.new('xyz').tap {|b| b[0, 2] = 'ab'  }.to_str.must_equal 'abz'
+    subject.new('xyz').tap {|b| b[2, 1] = 'c'   }.to_str.must_equal 'xyc'
+  end
+
+  it '#[]= must not allow resizing the buffer' do
+    lambda { subject.new('xyz')[0, 1] = 'ab' }.must_raise ArgumentError
+    lambda { subject.new('xyz')[0, 2] = 'a'  }.must_raise ArgumentError
+    lambda { subject.new('xyz')[3, 1] = 'a'  }.must_raise ArgumentError
+    lambda { subject.new('xyz')[2, 2] = 'ab' }.must_raise ArgumentError
+  end
+
+  it '#[] must accept an indivdual byte offset to return' do
     subject.new('xyz').tap do |buffer|
-      buffer.byteslice(-4).to_str.must_equal ''
-      buffer.byteslice(-3).to_str.must_equal 'x'
-      buffer.byteslice(-2).to_str.must_equal 'y'
-      buffer.byteslice(-1).to_str.must_equal 'z'
-      buffer.byteslice( 0).to_str.must_equal 'x'
-      buffer.byteslice( 1).to_str.must_equal 'y'
-      buffer.byteslice( 2).to_str.must_equal 'z'
-      buffer.byteslice( 3).to_str.must_equal ''
+      buffer[-4].to_str.must_equal ''
+      buffer[-3].to_str.must_equal 'x'
+      buffer[-2].to_str.must_equal 'y'
+      buffer[-1].to_str.must_equal 'z'
+      buffer[ 0].to_str.must_equal 'x'
+      buffer[ 1].to_str.must_equal 'y'
+      buffer[ 2].to_str.must_equal 'z'
+      buffer[ 3].to_str.must_equal ''
     end
   end
 
-  it '#byteslice must accept ranges of bytes to return' do
+  it '#[] must accept ranges of bytes to return' do
     subject.new('xyz').tap do |buffer|
-      buffer.byteslice( 0.. 0).to_str.must_equal 'x'
-      buffer.byteslice( 0.. 1).to_str.must_equal 'xy'
-      buffer.byteslice( 0.. 2).to_str.must_equal 'xyz'
-      buffer.byteslice( 0.. 3).to_str.must_equal 'xyz'
-      buffer.byteslice( 1..-1).to_str.must_equal 'yz'
-      buffer.byteslice( 2..-2).to_str.must_equal ''
-      buffer.byteslice(-3..-1).to_str.must_equal 'xyz'
-      buffer.byteslice(-4.. 1).to_str.must_equal ''
+      buffer[ 0.. 0].to_str.must_equal 'x'
+      buffer[ 0.. 1].to_str.must_equal 'xy'
+      buffer[ 0.. 2].to_str.must_equal 'xyz'
+      buffer[ 0.. 3].to_str.must_equal 'xyz'
+      buffer[ 1..-1].to_str.must_equal 'yz'
+      buffer[ 2..-2].to_str.must_equal ''
+      buffer[-3..-1].to_str.must_equal 'xyz'
+      buffer[-4.. 1].to_str.must_equal ''
     end
   end
 
-  it '#byteslice must accept an offset and number of bytes to return' do
+  it '#[] must accept an offset and number of bytes to return' do
     subject.new('xyz').tap do |buffer|
-      buffer.byteslice( 0,  0).to_str.must_equal ''
-      buffer.byteslice( 0,  1).to_str.must_equal 'x'
-      buffer.byteslice( 0,  3).to_str.must_equal 'xyz'
-      buffer.byteslice( 2,  4).to_str.must_equal 'z'
-      buffer.byteslice( 2,  1).to_str.must_equal 'z'
-      buffer.byteslice(-2,  1).to_str.must_equal 'y'
-      buffer.byteslice( 0, -1).to_str.must_equal ''
+      buffer[ 0,  0].to_str.must_equal ''
+      buffer[ 0,  1].to_str.must_equal 'x'
+      buffer[ 0,  3].to_str.must_equal 'xyz'
+      buffer[ 2,  4].to_str.must_equal 'z'
+      buffer[ 2,  1].to_str.must_equal 'z'
+      buffer[-2,  1].to_str.must_equal 'y'
+      buffer[ 0, -1].to_str.must_equal ''
     end
   end
 
-  it '#bytesize must return its length' do
+  it '#[] must return its length' do
     subject.new('testing').bytesize.must_equal 7
   end
 

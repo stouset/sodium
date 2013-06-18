@@ -70,6 +70,22 @@ class Sodium::Buffer
     )
   end
 
+  def ^(other)
+    raise ArgumentError, %{must only XOR strings of equal length} unless
+      self.bytesize == other.bytesize
+
+    Sodium::Buffer.empty(self.bytesize) do |buffer|
+      other = Sodium::Buffer.new
+
+      Sodium::FFI::Memory.sodium_memxor(
+        buffer.to_str,
+        self.to_str,
+        other.to_str,
+        other.bytesize
+      )
+    end
+  end
+
   def unpad(size)
     self.byteslice(size .. -1)
   end
