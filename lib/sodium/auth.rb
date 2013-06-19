@@ -7,33 +7,43 @@ class Sodium::Auth
     Sodium::Buffer.key self.implementation[:KEYBYTES]
   end
 
-  def initialize(key)
-    @key = self.class._key(key)
-  end
-
-  def auth(message)
-    message = self.class._message(message)
+  def self.auth(key, message)
+    key     = self._key(key)
+    message = self._message(message)
 
     Sodium::Buffer.empty self.implementation[:BYTES] do |authenticator|
       self.implementation.nacl(
         authenticator.to_str,
         message.to_str,
         message.to_str.bytesize,
-        @key.to_str
+        key.to_str
       ) or raise Sodium::CryptoError, 'failed to generate an authenticator'
     end
   end
 
-  def verify(message, authenticator)
-    message       = self.class._message(message)
-    authenticator = self.class._authenticator(authenticator)
+  def self.verify(key, message, authenticator)
+    key           = self._key(key)
+    message       = self._message(message)
+    authenticator = self._authenticator(authenticator)
 
     self.implementation.nacl_verify(
       authenticator.to_str,
       message.to_str,
       message.to_str.bytesize,
-      @key.to_str
+      key.to_str
     )
+  end
+
+  def initialize(key)
+    @key = self.class._key(key)
+  end
+
+  def auth(message)
+    self.class.auth(@key, message)
+  end
+
+  def verify(message, authenticator)
+    self.class.verify(@key, message, authenticator)
   end
 
   private
