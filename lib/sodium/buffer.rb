@@ -65,25 +65,25 @@ class Sodium::Buffer
     self.freeze
   end
 
-  def +(other)
-    Sodium::Buffer.empty(self.bytesize + other.bytesize) do |buffer|
+  def +(bytes)
+    Sodium::Buffer.empty(self.bytesize + bytes.bytesize) do |buffer|
       buffer[0,             self .bytesize] = self
-      buffer[self.bytesize, other.bytesize] = other
+      buffer[self.bytesize, bytes.bytesize] = bytes
     end
   end
 
-  def ^(other)
+  def ^(bytes)
+    bytes = Sodium::Buffer.new(bytes)
+
     raise ArgumentError, %{must only XOR strings of equal length} unless
-      self.bytesize == other.bytesize
+      self.bytesize == bytes.bytesize
 
     Sodium::Buffer.empty(self.bytesize) do |buffer|
-      other = Sodium::Buffer.new
-
       Sodium::FFI::Memory.sodium_memxor(
         buffer.to_str,
         self.to_str,
-        other.to_str,
-        other.bytesize
+        bytes.to_str,
+        bytes.bytesize
       )
     end
   end
