@@ -92,8 +92,9 @@ module Sodium::FFI::Crypto
 
   ffi_lib 'sodium'
 
-  attach_function 'sodium_init',    [],                  :void
-  attach_function 'sodium_memzero', [:pointer, :size_t], :void
+  attach_function 'sodium_init',    [],                            :void
+  attach_function 'sodium_memzero', [:pointer, :size_t],           :void
+  attach_function 'sodium_memcmp',  [:pointer, :pointer, :size_t], :int
 
   sodium_init
 

@@ -14,6 +14,30 @@ class Sodium::Buffer
     self.new("\0" * size).tap {|buffer| yield buffer if block_given? }
   end
 
+  def self.ljust(string, size)
+    size = (size > string.bytesize) ? size : string.bytesize
+
+    self.empty(size) do |buffer|
+      buffer[0, string.bytesize] = string
+    end
+  end
+
+  def self.rjust(string, size)
+    size = (size > string.bytesize) ? size : string.bytesize
+
+    self.empty(size) do |buffer|
+      buffer[size - string.bytesize, string.bytesize] = string
+    end
+  end
+
+  def self.lpad(string, size, &block)
+    self.rjust(string, string.bytesize + size, &block)
+  end
+
+  def self.rpad(string, size, &block)
+    self.ljust(string, string.bytesize + size, &block)
+  end
+
   def self.new(bytes, size = bytes.bytesize)
     raise Sodium::LengthError, "buffer must be exactly #{size} bytes long" unless
       bytes.bytesize == size
@@ -37,26 +61,67 @@ class Sodium::Buffer
 
     ObjectSpace.define_finalizer self,
       self.class._finalizer(@bytes)
+
+    self.freeze
   end
 
-  def +(other)
-    Sodium::Buffer.new(
-      self.to_str +
-      Sodium::Buffer.new(other).to_str
+  def ==(bytes)
+    bytes = Sodium::Buffer.new(bytes)
+
+    return false unless
+      self.bytesize == bytes.bytesize
+
+    Sodium::FFI::Crypto.sodium_memcmp(
+      self.to_str,
+      bytes.to_str,
+      bytes.bytesize
+    ) == 0
+  end
+
+  def +(bytes)
+    Sodium::Buffer.empty(self.bytesize + bytes.bytesize) do |buffer|
+      buffer[0,             self .bytesize] = self
+      buffer[self.bytesize, bytes.bytesize] = bytes
+    end
+  end
+
+  def ^(bytes)
+    bytes = Sodium::Buffer.new(bytes)
+
+    raise ArgumentError, %{must only XOR strings of equal length} unless
+      self.bytesize == bytes.bytesize
+
+    Sodium::Buffer.empty(self.bytesize) do |buffer|
+      Sodium::FFI::Memory.sodium_memxor(
+        buffer.to_str,
+        self.to_str,
+        bytes.to_str,
+        bytes.bytesize
+      )
+    end
+  end
+
+  def []=(offset, size, bytes)
+    raise ArgumentError, %{must only assign to existing bytes in the buffer} unless
+      self.bytesize >= offset + size
+
+    raise ArgumentError, %{must reassign only a fixed number of bytes} unless
+      size == bytes.bytesize
+
+    # ensure the original bytes get cleared
+    bytes = Sodium::Buffer.new(bytes)
+
+    Sodium::FFI::Memory.sodium_memput(
+      self.to_str,
+      bytes.to_str,
+      offset,
+      size
     )
+
+    true
   end
 
-  def pad(size)
-    self.class.new(
-      ("\0" * size) + @bytes
-    )
-  end
-
-  def unpad(size)
-    self.byteslice(size .. -1)
-  end
-
-  def byteslice(*args)
+  def [](*args)
     return self.class.new(
       @bytes.byteslice(*args).to_s
     ) if (
@@ -103,6 +168,9 @@ class Sodium::Buffer
     finish += self.bytesize if finish < 0
     size    = finish - start + 1
 
+    # this approach ensures the bytes are copied into new memory, so
+    # instantiating a new buffer doesn't clear the bytes in the
+    # existing buffer
     bytes = (start >= 0 and size >= 0)         ?
       @bytes.unpack("@#{start}a#{size}").first :
       ''
@@ -110,8 +178,18 @@ class Sodium::Buffer
     self.class.new(bytes)
   end
 
+  alias byteslice []
+
   def bytesize
     @bytes.bytesize
+  end
+
+  def rdrop(size)
+    self[0, self.bytesize - size]
+  end
+
+  def ldrop(size)
+    self[size, self.bytesize - size]
   end
 
   def inspect

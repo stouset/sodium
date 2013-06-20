@@ -27,7 +27,7 @@ class Sodium::SecretBox
         nonce.to_str,
         @key.to_str
       ) or raise Sodium::CryptoError, 'failed to close the secret box'
-    end.unpad self.implementation[:BOXZEROBYTES]
+    end.ldrop self.implementation[:BOXZEROBYTES]
   end
 
   def open(ciphertext, nonce)
@@ -42,7 +42,7 @@ class Sodium::SecretBox
         nonce.to_str,
         @key.to_str
       ) or raise Sodium::CryptoError, 'failed to open the secret box'
-    end.unpad self.implementation[:ZEROBYTES]
+    end.ldrop self.implementation[:ZEROBYTES]
   end
 
   private
@@ -52,11 +52,11 @@ class Sodium::SecretBox
   end
 
   def self._message(m)
-    Sodium::Buffer.new(m).pad self.implementation[:ZEROBYTES]
+    Sodium::Buffer.lpad m, self.implementation[:ZEROBYTES]
   end
 
   def self._ciphertext(c)
-    Sodium::Buffer.new(c).pad self.implementation[:BOXZEROBYTES]
+    Sodium::Buffer.lpad c, self.implementation[:BOXZEROBYTES]
   end
 
   def self._nonce(n)
