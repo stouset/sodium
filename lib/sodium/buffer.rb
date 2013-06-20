@@ -65,6 +65,19 @@ class Sodium::Buffer
     self.freeze
   end
 
+  def ==(bytes)
+    bytes = Sodium::Buffer.new(bytes)
+
+    return false unless
+      self.bytesize == bytes.bytesize
+
+    Sodium::FFI::Crypto.sodium_memcmp(
+      self.to_str,
+      bytes.to_str,
+      bytes.bytesize
+    ) == 0
+  end
+
   def +(bytes)
     Sodium::Buffer.empty(self.bytesize + bytes.bytesize) do |buffer|
       buffer[0,             self .bytesize] = self

@@ -86,6 +86,15 @@ describe Sodium::Buffer do
   it '#initialize must wipe the buffer during finalization'
   it '#initialize must prevent the string from being paged to disk'
 
+  it '#== must compare equality of two buffers' do
+    subject.new('xyz').==('xyz') .must_equal true
+    subject.new('xyz').==('xy')  .must_equal false
+    subject.new('xyz').==('xyzz').must_equal false
+    subject.new('xyz').==('abc') .must_equal false
+  end
+
+  it '#== must compare equality of two buffers in constant time'
+
   it '#+ must append two buffers' do
     subject.new('xyz').+('abc').to_str.must_equal 'xyzabc'
   end
