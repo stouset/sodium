@@ -2,3 +2,9 @@ build/
 coverage/
 
 Gemfile.lock
+
+Makefile
+*.o
+*.so
+*.bundle
+.*.time
