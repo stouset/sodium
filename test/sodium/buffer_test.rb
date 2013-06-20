@@ -86,6 +86,15 @@ describe Sodium::Buffer do
   it '#initialize must wipe the buffer during finalization'
   it '#initialize must prevent the string from being paged to disk'
 
+  it '#+ must append two buffers' do
+    subject.new('xyz').+('abc').to_str.must_equal 'xyzabc'
+  end
+
+  it '#^ must XOR two buffers' do
+    subject.new('xyz').^('xyz').to_str.must_equal "\0\0\0"
+    subject.new('xyz').^('xyz').to_str.must_equal "\0\0\0"
+  end
+
   it '#[]= must allow replacement of byte ranges' do
     subject.new('xyz').tap {|b| b[0, 3] = 'abc' }.to_str.must_equal 'abc'
     subject.new('xyz').tap {|b| b[0, 2] = 'ab'  }.to_str.must_equal 'abz'
