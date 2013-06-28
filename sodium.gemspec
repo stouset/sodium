@@ -22,4 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake',     '~> 10'
   gem.add_development_dependency 'minitest', '~> 5'
   gem.add_development_dependency 'version',  '~> 1'
+
+  gem.signing_key = '/Volumes/Sensitive/Keys/Gems/sodium@touset.org.key'
+  gem.cert_chain  = [ 'certs/sodium@touset.org.cert' ]
 end
