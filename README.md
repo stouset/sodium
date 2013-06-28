@@ -66,6 +66,26 @@ echo gem 'sodium' >> Gemfile
 bundle
 ```
 
+### Signed Gem
+
+As of version 0.6.0, the `sodium` gem will be signed with the project's public key. Ruby support for gem signatures is still in its infancy, but it is functional. You must install our certificate before you can verify the gem signature. Start by downloading the certificate and verifying its checksum.
+
+```sh
+curl -O https://raw.github.com/stouset/sodium/master/certs/sodium@touset.org.cert
+shasum -a 256 --check <(echo "6c731e7872dbfab18397d62ee9aa1215ef186a5f31358d1f041faa49301624a6  sodium@touset.org.cert")
+```
+
+Of course, if our GitHub repo has been compromised, someone can easily replace both the key in the repo and the checksum in these directions. Like I said, gem signatures are still in their infancy. I encourage you to verify this signature through alternate channels. For instance, you can at least examine the git history of the file, and ensure it hasn't been changed (unless otherwise announced).
+
+Once you have the certificate and have confirmed its correctness to your satisfaction, install it and then the gem.
+
+```sh
+gem cert -a sodium@touset.org.cert
+gem install sodium -P HighSecurity
+```
+
+Verifying the gem signature when using [bundler][bundler] is substantially more difficult and will not be covered here until it becomes more practical. If you're curious, feel free to read the [relevant literature][bundler-gem-signatures].
+
 Documentation
 -------------
 
@@ -109,3 +129,5 @@ Fork, commit, push. Submit pull request. When possible, try and follow existing 
 [example-asymmetric-signatures]:    examples/TODO
 
 [gpg-key]: certs/sodium@touset.org.pub.gpg
+
+[bundler-gem-signatures]: http://blog.meldium.com/home/2013/3/3/signed-rubygems-part

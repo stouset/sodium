@@ -1,3 +1,11 @@
+### 0.6.1 (2013-06-27)
+
+- Additions
+  * document the process for verifying the gem signature
+
+- Bug Fixes
+  * allow the gem to be built without the private signing key
+
 ### 0.6.0 (2013-06-27)
 
 - Additions
