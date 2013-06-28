@@ -23,6 +23,13 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'minitest', '~> 5'
   gem.add_development_dependency 'version',  '~> 1'
 
-  gem.signing_key = '/Volumes/Sensitive/Keys/Gems/sodium@touset.org.key'
-  gem.cert_chain  = [ 'certs/sodium@touset.org.cert' ]
+  # bundler tries to build the gem on load, so only sign if the key is
+  # present; however, we still warn just in case we're legitimately
+  # packaging the gem for release but they key isn't available
+  if File.exist?('/Volumes/Sensitive/Keys/Gems/sodium@touset.org.key')
+    gem.signing_key = '/Volumes/Sensitive/Keys/Gems/sodium@touset.org.key'
+    gem.cert_chain  = [ 'certs/sodium@touset.org.cert' ]
+  else
+    warn 'Building the sodium gem without a signature...'
+  end
 end
