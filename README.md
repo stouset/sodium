@@ -108,4 +108,4 @@ Fork, commit, push. Submit pull request. When possible, try and follow existing 
 [example-asymmetric-encryption]:    examples/TODO
 [example-asymmetric-signatures]:    examples/TODO
 
-[gpg-key]: sodium.pub.gpg
+[gpg-key]: certs/sodium@touset.org.pub.gpg
