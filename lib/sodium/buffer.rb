@@ -51,10 +51,10 @@ class Sodium::Buffer
     # initialize with a forced hard copy of the bytes (Ruby is smart
     # about using copy-on-write for strings 24 bytes or longer, so we
     # have to perform a no-op that forces Ruby to copy the bytes)
-    @bytes = bytes.tr('','').tap {|s|
+    @bytes = bytes.dup.tap {|s|
       s.force_encoding('BINARY') if
       s.respond_to?(:force_encoding)
-    }.freeze
+    }.tr('', '').freeze
 
     self.class._mlock! @bytes
     self.class._mwipe!  bytes
