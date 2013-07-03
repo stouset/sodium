@@ -1,3 +1,8 @@
+### unreleased
+
+- Bug Fixes
+  * Sodium::Buffer again accepts binary strings that aren't valid Unicode
+
 ### 0.6.1 (2013-06-27)
 
 - Additions
