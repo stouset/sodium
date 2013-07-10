@@ -1,4 +1,7 @@
-### unreleased
+### 0.6.1 (2013-07-09)
+
+- Additions
+  * now actually distributed with a license! (MIT)
 
 - Bug Fixes
   * Sodium::Buffer again accepts binary strings that aren't valid Unicode
