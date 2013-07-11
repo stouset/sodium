@@ -41,7 +41,7 @@ describe Sodium::Sign::Ed25519 do
   end
 
   it 'must generate message signatures' do
-    self.subject.sign(self.plaintext).to_str.
+    self.subject.sign(self.plaintext).to_s.
       must_equal self.signature
   end
 

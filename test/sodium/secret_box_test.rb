@@ -26,17 +26,17 @@ describe Sodium::SecretBox do
     sodium_mock_default(self.klass) do |klass, mock|
       mock.expect :[], 0, [:KEYBYTES]
 
-      klass.key.to_str.must_equal ''
+      klass.key.to_s.must_equal ''
     end
   end
 
   it 'must raise when instantiating with an invalid key' do
-    lambda { self.klass.new(self.key.to_str[0..-2]) }.
+    lambda { self.klass.new(self.key.to_s[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
   it 'must raise when receiving an invalid nonce' do
-    lambda { self.subject.secret_box('message', self.subject.nonce.to_str[0..-2]) }.
+    lambda { self.subject.secret_box('message', self.subject.nonce.to_s[0..-2]) }.
       must_raise Sodium::LengthError
   end
 

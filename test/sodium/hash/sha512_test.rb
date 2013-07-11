@@ -30,6 +30,6 @@ describe Sodium::Hash::SHA512 do
   it 'must generate hashes' do
     self.klass.hash(
       self.plaintext
-    ).to_str.must_equal self.hash
+    ).to_s.must_equal self.hash
   end
 end

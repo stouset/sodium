@@ -13,10 +13,10 @@ class Sodium::Auth
 
     Sodium::Buffer.empty self.implementation[:BYTES] do |authenticator|
       self.implementation.nacl(
-        authenticator.to_str,
-        message.to_str,
-        message.to_str.bytesize,
-        key.to_str
+        authenticator.to_ptr,
+        message      .to_ptr,
+        message      .bytesize,
+        key          .to_ptr
       ) or raise Sodium::CryptoError, 'failed to generate an authenticator'
     end
   end
@@ -27,10 +27,10 @@ class Sodium::Auth
     authenticator = self._authenticator(authenticator)
 
     self.implementation.nacl_verify(
-      authenticator.to_str,
-      message.to_str,
-      message.to_str.bytesize,
-      key.to_str
+      authenticator.to_ptr,
+      message      .to_ptr,
+      message      .bytesize,
+      key          .to_ptr
     )
   end
 

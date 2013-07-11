@@ -47,18 +47,18 @@ describe Sodium::Box::Curve25519XSalsa20Poly1305 do
     self.subject.box(
       self.plaintext,
       self.nonce
-    ).to_str.must_equal self.ciphertext
+    ).to_s.must_equal self.ciphertext
   end
 
   it 'must open boxes' do
     self.subject.open(
       self.ciphertext,
       self.nonce
-    ).to_str.must_equal self.plaintext
+    ).to_s.must_equal self.plaintext
   end
 
   it 'must generate shared keys' do
-    self.subject.beforenm.to_str.must_equal self.shared_key
+    self.subject.beforenm.to_s.must_equal self.shared_key
   end
 
   it 'must generate closed boxes with shared keys' do
@@ -66,7 +66,7 @@ describe Sodium::Box::Curve25519XSalsa20Poly1305 do
       self.shared_key,
       self.plaintext,
       self.nonce
-    ).to_str.must_equal self.ciphertext
+    ).to_s.must_equal self.ciphertext
   end
 
   it 'must open boxes with shared keys' do
@@ -74,6 +74,6 @@ describe Sodium::Box::Curve25519XSalsa20Poly1305 do
       self.shared_key,
       self.ciphertext,
       self.nonce
-    ).to_str.must_equal self.plaintext
+    ).to_s.must_equal self.plaintext
   end
 end
