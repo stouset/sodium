@@ -48,21 +48,37 @@ class Sodium::Buffer
   end
 
   def initialize(bytes)
-    # initialize with a forced hard copy of the bytes (Ruby is smart
-    # about using copy-on-write for strings 24 bytes or longer, so we
-    # have to perform a no-op that forces Ruby to copy the bytes)
-    @bytes = bytes.dup.tap {|s|
-      s.force_encoding('BINARY') if
-      s.respond_to?(:force_encoding)
-    }.tr('', '').freeze
+    # allocate memory for the incoming bytes and copy them in to our
+    # newly-owned memory
+    pointer = Sodium::FFI::LibC.calloc(1, bytes.bytesize)
+    pointer.write_string(bytes)
 
-    self.class._mlock! @bytes
-    self.class._mwipe!  bytes
+    # use the ZeroingDelegator finalizer to wipe the memory from our
+    # pointer, and attach our own finalizer to free() the memory
+    ZeroingDelegator._finalize! self, pointer, bytes.bytesize,
+      &self.class._finalizer(pointer, bytes.bytesize)
 
-    ObjectSpace.define_finalizer self,
-      self.class._finalizer(@bytes)
+    # zero out the bytes passed to us, since we can't control their
+    # lifecycle
+    ZeroingDelegator._mwipe!(bytes, bytes.bytesize)
 
-    self.freeze
+    # WARNING: The following section is critical. Edit with caution!
+    #
+    # We create a new pointer to the bytes allocated earlier and set a
+    # hidden instance variable pointing at ourself. We do the latter
+    # so that there is a cyclic dependency between the buffer and the
+    # pointer; if either is still live in the current scope, it is
+    # enough to prevent the other from being collected. We create the
+    # new pointer since the previous pointer is pointed to by our
+    # finalizer; if we didn't, its existence in the finalizer proc
+    # would keep us from being garbage collected because of its
+    # pointer to us!
+    @bytesize = bytes.bytesize
+    @bytes    = FFI::Pointer.new(pointer.address)
+    @bytes.instance_variable_set(:@_sodium_buffer, self)
+
+    @bytes.freeze
+    self  .freeze
   end
 
   def ==(bytes)
@@ -72,8 +88,8 @@ class Sodium::Buffer
       self.bytesize == bytes.bytesize
 
     Sodium::FFI::Crypto.sodium_memcmp(
-      self.to_str,
-      bytes.to_str,
+      self .to_ptr,
+      bytes.to_ptr,
       bytes.bytesize
     ) == 0
   end
@@ -93,10 +109,10 @@ class Sodium::Buffer
 
     Sodium::Buffer.empty(self.bytesize) do |buffer|
       Sodium::FFI::Memory.sodium_memxor(
-        buffer.to_str,
-        self.to_str,
-        bytes.to_str,
-        bytes.bytesize
+        buffer.to_ptr,
+        self  .to_ptr,
+        bytes .to_ptr,
+        bytes .bytesize
       )
     end
   end
@@ -112,8 +128,8 @@ class Sodium::Buffer
     bytes = Sodium::Buffer.new(bytes)
 
     Sodium::FFI::Memory.sodium_memput(
-      self.to_str,
-      bytes.to_str,
+      self .to_ptr,
+      bytes.to_ptr,
       offset,
       size
     )
@@ -121,67 +137,16 @@ class Sodium::Buffer
     true
   end
 
-  def [](*args)
-    return self.class.new(
-      @bytes.byteslice(*args).to_s
-    ) if (
-      # Ruby 1.8 doesn't have byteslice
-      @bytes.respond_to?(:byteslice) or
-
-      # JRuby reuses memory regions when calling byteslice, which
-      # results in them getting cleared when the new buffer initializes
-      defined?(RUBY_ENGINE) and RUBY_ENGINE == 'java'
+  def [](offset, size)
+    self.class.new(
+      @bytes.get_bytes(offset, size)
     )
-
-    raise ArgumentError, 'wrong number of arguments (0 for 1..2)' if
-      args.length < 1 or args.length > 2
-
-    start, finish = case
-      when args[1]
-        # matches: byteslice(start, size)
-        start  = args[0].to_i
-        size   = args[1].to_i
-
-        # if size is less than 1, finish needs to be small enough that
-        # `finish - start + 1 <= 0` even after finish is wrapped
-        # around to account for negative indices
-        finish = size > 0  ?
-          start + size - 1 :
-          - self.bytesize.succ
-
-        [ start, finish ]
-      when args[0].kind_of?(Range)
-        # matches: byteslice(start .. finish)
-        # matches: byteslice(start ... finish)
-        range  = args[0]
-        start  = range.begin.to_i
-        finish = range.exclude_end? ? range.end.to_i - 1 : range.end.to_i
-
-        [ start, finish ]
-      else
-        # matches: byteslice(start)
-        [ args[0].to_i, args[0].to_i ]
-    end
-
-    # ensure negative values are wrapped around explicitly
-    start  += self.bytesize if start  < 0
-    finish += self.bytesize if finish < 0
-    size    = finish - start + 1
-
-    # this approach ensures the bytes are copied into new memory, so
-    # instantiating a new buffer doesn't clear the bytes in the
-    # existing buffer
-    bytes = (start >= 0 and size >= 0)         ?
-      @bytes.unpack("@#{start}a#{size}").first :
-      ''
-
-    self.class.new(bytes)
   end
 
   alias byteslice []
 
   def bytesize
-    @bytes.bytesize
+    @bytesize
   end
 
   def rdrop(size)
@@ -198,22 +163,113 @@ class Sodium::Buffer
     "#<%s:0x%x>" % [ self.class.name, self.__id__ * 2 ]
   end
 
-  def to_str
-    @bytes.to_str
+  def to_s
+    # Pretend to return a string, but really return a Delegator that
+    # wipes the string's memory when it gets garbage collected.
+    #
+    # Since any calls to the methods of the String inside the
+    # delegator by necessity have the delegator's `method_missing` in
+    # their backtrace, there can never be a situation where there is a
+    # live pointer to the string itself but not one to the delegator.
+    ZeroingDelegator.new(
+      @bytes.read_bytes(@bytesize)
+    )
+  end
+
+  def to_ptr
+    @bytes
   end
 
   private
 
-  def self._finalizer(buffer)
-    proc { self._mwipe!(buffer) }
+  def self._finalizer(pointer, size)
+    proc { self._free!(pointer) }
   end
 
-  def self._mwipe!(buffer)
-    Sodium::FFI::Crypto.sodium_memzero(buffer, buffer.bytesize)
+  def self._free!(pointer)
+    Sodium::FFI::LibC.free(pointer)
+  end
+end
+
+class Sodium::Buffer::ZeroingDelegator
+  self.instance_methods.map(&:to_sym).each do |method|
+   undef_method method unless [
+      :__id__,
+      :__send__,
+      :object_id,
+      :equal?,
+    ].include?(method)
   end
 
-  def self._mlock!(buffer)
-    Sodium::FFI::LibC.mlock(buffer, buffer.bytesize) or
+  def initialize(string, &finalizer)
+    self.__setobj__(string)
+
+    # specify class name explicitly, since we're letting the `class`
+    # method delegate to the wrapped object
+    Sodium::Buffer::ZeroingDelegator._mlock!          string, string.bytesize
+    Sodium::Buffer::ZeroingDelegator._finalize! self, string, string.bytesize,
+      &finalizer
+
+    self.__getobj__.freeze
+    self           .freeze
+  end
+
+  def to_s
+    self
+  end
+
+  def to_str
+    # Okay, fine, you win. I'll give you access to the raw string
+    # we're wrapping. But now I can't wipe the data when you're done
+    # with it.
+    self.__getobj__.
+      tr('', ''). # trick to force the string to be copied
+      freeze
+  end
+
+  alias dup   to_s
+  alias clone to_s
+
+  protected
+
+  def method_missing(*args, &block)
+    self.__getobj__.__send__(*args, &block)
+  ensure
+    $@.delete_if do |trace|
+      # delete lines from the backtrace that originate from the
+      # __send__ line above
+      trace =~ %r{ \A #{Regexp.quote(__FILE__)}:#{__LINE__ - 5} : }x
+    end if $@
+  end
+
+  def __getobj__
+    @_obj
+  end
+
+  def __setobj__(string)
+    @_obj = string
+  end
+
+  private
+
+  def self._finalizer(pointer, size, &finalizer)
+    proc {
+      self._mwipe!   pointer, size
+      finalizer.call pointer, size if finalizer
+    }
+  end
+
+  def self._finalize!(delegator, pointer, size, &finalizer)
+    ObjectSpace.define_finalizer delegator,
+      self._finalizer(pointer, size, &finalizer)
+  end
+
+  def self._mwipe!(pointer, size)
+    Sodium::FFI::Crypto.sodium_memzero(pointer, size)
+  end
+
+  def self._mlock!(pointer, size)
+    Sodium::FFI::LibC.mlock(pointer, size) or
       raise Sodium::MemoryError, 'could not mlock(2) secure buffer into memory'
   end
 end

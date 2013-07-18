@@ -8,8 +8,8 @@ class Sodium::Sign
     secret_key = Sodium::Buffer.empty self.implementation[:SECRETKEYBYTES]
 
     self.implementation.nacl_keypair(
-      public_key.to_str,
-      secret_key.to_str
+      public_key.to_ptr,
+      secret_key.to_ptr
     ) or raise Sodium::CryptoError, 'failed to generate a keypair'
 
     return secret_key, public_key
@@ -22,11 +22,11 @@ class Sodium::Sign
     mlen      = FFI::MemoryPointer.new(:ulong_long, 1, true)
 
     self.implementation.nacl_open(
-      message.to_str,
+      message   .to_ptr,
       mlen,
-      signature.to_str,
-      signature.to_str.bytesize,
-      key.to_str
+      signature .to_ptr,
+      signature .bytesize,
+      key       .to_ptr
     )
   end
 
@@ -40,18 +40,18 @@ class Sodium::Sign
     slen      = FFI::MemoryPointer.new(:ulong_long, 1, true)
 
     self.implementation.nacl(
-      signature.to_str,
+      signature .to_ptr,
       slen,
-      message.to_str,
-      message.to_str.bytesize,
-      @key.to_str
+      message   .to_ptr,
+      message   .bytesize,
+      @key      .to_ptr
     ) or raise Sodium::CryptoError, 'failed to generate signature'
 
     # signatures actually encode the message itself at the end, so we
     # slice off only the signature bytes
     signature.byteslice(
       0,
-      slen.read_ulong_long - message.to_str.bytesize
+      slen.read_ulong_long - message.bytesize
     )
   end
 

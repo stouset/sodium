@@ -35,11 +35,11 @@ describe Sodium::Auth::HMACSHA512256 do
     self.klass.auth(
       self.key,
       self.plaintext
-    ).to_str.must_equal self.authenticator
+    ).to_s.must_equal self.authenticator
 
     self.subject.auth(
       self.plaintext
-    ).to_str.must_equal self.authenticator
+    ).to_s.must_equal self.authenticator
   end
 
   it 'must verify authenticators' do

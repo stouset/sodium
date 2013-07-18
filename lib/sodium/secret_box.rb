@@ -21,11 +21,11 @@ class Sodium::SecretBox
 
     Sodium::Buffer.empty(message.bytesize) do |ciphertext|
       self.implementation.nacl(
-        ciphertext.to_str,
-        message.to_str,
-        message.to_str.bytesize,
-        nonce.to_str,
-        @key.to_str
+        ciphertext .to_ptr,
+        message    .to_ptr,
+        message    .bytesize,
+        nonce      .to_ptr,
+        @key       .to_ptr
       ) or raise Sodium::CryptoError, 'failed to close the secret box'
     end.ldrop self.implementation[:BOXZEROBYTES]
   end
@@ -36,11 +36,11 @@ class Sodium::SecretBox
 
     Sodium::Buffer.empty(ciphertext.bytesize) do |message|
       self.implementation.nacl_open(
-        message.to_str,
-        ciphertext.to_str,
-        ciphertext.to_str.bytesize,
-        nonce.to_str,
-        @key.to_str
+        message    .to_ptr,
+        ciphertext .to_ptr,
+        ciphertext .bytesize,
+        nonce      .to_ptr,
+        @key       .to_ptr
       ) or raise Sodium::CryptoError, 'failed to open the secret box'
     end.ldrop self.implementation[:ZEROBYTES]
   end
