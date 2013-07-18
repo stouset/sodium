@@ -1,4 +1,4 @@
-### unreleased
+### 0.7.0 (2013-07-18)
 
 - Additions
   * Sodium::Buffer#to_ptr added to replace #to_str
