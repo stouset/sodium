@@ -20,9 +20,10 @@ describe Sodium::Hash do
   it 'must hash from the default implementation' do
     sodium_mock_default(self.klass) do |klass, mock|
       mock.expect :[],   0,  [ :BYTES ]
-      mock.expect :nacl, '', [ String, self.plaintext, self.plaintext.bytesize ]
+      mock.expect :nacl, '',
+        [ FFI::Pointer, FFI::Pointer, self.plaintext.bytesize ]
 
-      klass.hash(self.plaintext).to_str.must_equal ''
+      klass.hash(self.plaintext).to_s.must_equal ''
     end
   end
 

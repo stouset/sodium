@@ -1,4 +1,18 @@
-### 0.6.1 (2013-07-09)
+### unreleased
+
+- Additions
+  * Sodium::Buffer#to_ptr added to replace #to_str
+  * Sodium::Buffer#to_s added to replace #to_str
+
+- Removals
+  * Sodium::Buffer#to_str removed
+
+- Bug Fixes
+  * Potential data loss bug fixed. Sodium::Buffer can no longer be
+    garbage collected (thus clearing its bytes) while a pointer to its
+    bytes (from #to_ptr) is being held.
+
+### 0.6.2 (2013-07-09)
 
 - Additions
   * now actually distributed with a license! (MIT)

@@ -24,21 +24,21 @@ describe Sodium::Sign do
 
   it 'must mint keys from the default implementation' do
     sodium_mock_default(self.klass) do |klass, mock|
-      mock.expect :nacl_keypair, true, ['', '']
+      mock.expect :nacl_keypair, true, [ FFI::Pointer, FFI::Pointer]
       mock.expect :[],           0,    [:PUBLICKEYBYTES]
       mock.expect :[],           0,    [:SECRETKEYBYTES]
 
       sk, pk = klass.keypair
 
-      sk.to_str.must_equal ''
-      pk.to_str.must_equal ''
+      sk.to_s.must_equal ''
+      pk.to_s.must_equal ''
     end
   end
 
   it 'must raise when instantiating with an invalid key' do
     secret_key = self.keypair.first
 
-    lambda { self.klass.new(secret_key.to_str[0..-2]) }.
+    lambda { self.klass.new(secret_key.to_s[0..-2]) }.
       must_raise Sodium::LengthError
   end
 

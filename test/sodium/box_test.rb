@@ -24,29 +24,29 @@ describe Sodium::Box do
 
   it 'must mint keypairs from the default implementation' do
     sodium_mock_default(self.klass) do |klass, mock|
-      mock.expect :nacl_keypair, true, [ '', '' ]
+      mock.expect :nacl_keypair, true, [ FFI::Pointer, FFI::Pointer ]
       mock.expect :[],           0,    [:PUBLICKEYBYTES]
       mock.expect :[],           0,    [:SECRETKEYBYTES]
 
       sk, pk = klass.keypair
 
-      sk.to_str.must_equal ''
-      pk.to_str.must_equal ''
+      sk.to_s.must_equal ''
+      pk.to_s.must_equal ''
     end
   end
 
   it 'must raise when instantiating with an invalid keypair' do
     secret_key, public_key = self.keypair
 
-    lambda { self.klass.new(secret_key.to_str[0..-2], public_key) }.
+    lambda { self.klass.new(secret_key.to_s[0..-2], public_key) }.
       must_raise Sodium::LengthError
 
-    lambda { self.klass.new(secret_key, public_key.to_str[0..-2]) }.
+    lambda { self.klass.new(secret_key, public_key.to_s[0..-2]) }.
       must_raise Sodium::LengthError
   end
 
   it 'must raise when receiving an invalid nonce' do
-    lambda { self.subject.box('message', self.subject.nonce.to_str[0..-2]) }.
+    lambda { self.subject.box('message', self.subject.nonce.to_s[0..-2]) }.
       must_raise Sodium::LengthError
   end
 

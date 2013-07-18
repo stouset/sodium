@@ -8,8 +8,8 @@ class Sodium::Box
     secret_key = Sodium::Buffer.empty self.implementation[:SECRETKEYBYTES]
 
     self.implementation.nacl_keypair(
-      public_key.to_str,
-      secret_key.to_str
+      public_key.to_ptr,
+      secret_key.to_ptr
     ) or raise Sodium::CryptoError, 'failed to generate a keypair'
 
     return secret_key, public_key
@@ -22,11 +22,11 @@ class Sodium::Box
 
     Sodium::Buffer.empty(message.bytesize) do |ciphertext|
       self.implementation.nacl_afternm(
-        ciphertext.to_str,
-        message.to_str,
-        message.to_str.bytesize,
-        nonce.to_str,
-        shared_key.to_str
+        ciphertext.to_ptr,
+        message   .to_ptr,
+        message   .bytesize,
+        nonce     .to_ptr,
+        shared_key.to_ptr
       ) or raise Sodium::CryptoError, 'failed to close the box'
     end.ldrop self.implementation[:BOXZEROBYTES]
   end
@@ -38,11 +38,11 @@ class Sodium::Box
 
     Sodium::Buffer.empty(ciphertext.bytesize) do |message|
       self.implementation.nacl_open_afternm(
-        message.to_str,
-        ciphertext.to_str,
-        ciphertext.to_str.bytesize,
-        nonce.to_str,
-        shared_key.to_str
+        message   .to_ptr,
+        ciphertext.to_ptr,
+        ciphertext.bytesize,
+        nonce     .to_ptr,
+        shared_key.to_ptr
       ) or raise Sodium::CryptoError, 'failed to open the box'
     end.ldrop self.implementation[:ZEROBYTES]
   end
@@ -63,12 +63,12 @@ class Sodium::Box
 
     Sodium::Buffer.empty(message.bytesize) do |ciphertext|
       self.implementation.nacl(
-        ciphertext.to_str,
-        message.to_str,
-        message.to_str.bytesize,
-        nonce.to_str,
-        @public_key.to_str,
-        @secret_key.to_str
+        ciphertext .to_ptr,
+        message    .to_ptr,
+        message    .bytesize,
+        nonce      .to_ptr,
+        @public_key.to_ptr,
+        @secret_key.to_ptr
       ) or raise Sodium::CryptoError, 'failed to close the box'
     end.ldrop self.implementation[:BOXZEROBYTES]
   end
@@ -79,12 +79,12 @@ class Sodium::Box
 
     Sodium::Buffer.empty(ciphertext.bytesize) do |message|
       self.implementation.nacl_open(
-        message.to_str,
-        ciphertext.to_str,
-        ciphertext.to_str.bytesize,
-        nonce.to_str,
-        @public_key.to_str,
-        @secret_key.to_str
+        message    .to_ptr,
+        ciphertext .to_ptr,
+        ciphertext .bytesize,
+        nonce      .to_ptr,
+        @public_key.to_ptr,
+        @secret_key.to_ptr
       ) or raise Sodium::CryptoError, 'failed to open the box'
     end.ldrop self.implementation[:ZEROBYTES]
   end
@@ -92,9 +92,9 @@ class Sodium::Box
   def beforenm
     Sodium::Buffer.empty self.implementation[:BEFORENMBYTES] do |shared_key|
       self.implementation.nacl_beforenm(
-        shared_key.to_str,
-        @public_key.to_str,
-        @secret_key.to_str
+        shared_key .to_ptr,
+        @public_key.to_ptr,
+        @secret_key.to_ptr
       ) or raise Sodium::CryptoError, 'failed to create a shared key'
     end
   end
