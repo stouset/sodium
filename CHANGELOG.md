@@ -1,4 +1,4 @@
-### (unreleased)
+### 0.7.1 (2013-07-19)
 
 - Bug Fixes
   * Sodium::Buffer#initialize accepts ZeroingDelegators
