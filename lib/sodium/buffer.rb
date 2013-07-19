@@ -198,18 +198,19 @@ class Sodium::Buffer::ZeroingDelegator
       :__send__,
       :object_id,
       :equal?,
+      :freeze,
+      :frozen?,
     ].include?(method)
   end
 
   def initialize(string, &finalizer)
-    self.__setobj__(string)
-
     # specify class name explicitly, since we're letting the `class`
     # method delegate to the wrapped object
     Sodium::Buffer::ZeroingDelegator._mlock!          string, string.bytesize
     Sodium::Buffer::ZeroingDelegator._finalize! self, string, string.bytesize,
       &finalizer
 
+    self.__setobj__(string)
     self.__getobj__.freeze
     self           .freeze
   end

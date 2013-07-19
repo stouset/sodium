@@ -1,3 +1,9 @@
+### (unreleased)
+
+- Bug Fixes
+  * ZeroingDelegator no longer delegates #freeze and #frozen? to its
+    delegate
+
 ### 0.7.0 (2013-07-18)
 
 - Additions
