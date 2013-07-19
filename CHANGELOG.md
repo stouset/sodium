@@ -1,6 +1,7 @@
 ### (unreleased)
 
 - Bug Fixes
+  * Sodium::Buffer#initialize accepts ZeroingDelegators
   * ZeroingDelegator no longer delegates #freeze and #frozen? to its
     delegate
 

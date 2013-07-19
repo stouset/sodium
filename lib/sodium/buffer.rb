@@ -50,6 +50,7 @@ class Sodium::Buffer
   def initialize(bytes)
     # allocate memory for the incoming bytes and copy them in to our
     # newly-owned memory
+    bytes   = bytes.to_str # unwrap ZeroingDelegator if present
     pointer = Sodium::FFI::LibC.calloc(1, bytes.bytesize)
     pointer.write_string(bytes)
 

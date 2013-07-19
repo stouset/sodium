@@ -90,6 +90,11 @@ describe Sodium::Buffer do
     end.must_equal("\0" * 4)
   end
 
+  it '#initialize must accept ZeroingDelegator-wrapped strings' do
+    lambda { subject.new subject.new('xyz').to_s }.call.
+      wont_equal TypeError
+  end
+
   it '#initialize must wipe the buffer during finalization'
   it '#initialize must prevent the string from being paged to disk'
 
