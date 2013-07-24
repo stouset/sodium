@@ -1,3 +1,8 @@
+### (unreleased)
+
+- Bug Fixes
+  * mlock() called on the pointer allocated by Sodium::Buffer
+
 ### 0.7.1 (2013-07-19)
 
 - Bug Fixes

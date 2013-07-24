@@ -48,16 +48,23 @@ class Sodium::Buffer
   end
 
   def initialize(bytes)
-    # allocate memory for the incoming bytes and copy them in to our
-    # newly-owned memory
-    bytes   = bytes.to_str # unwrap ZeroingDelegator if present
-    pointer = Sodium::FFI::LibC.calloc(1, bytes.bytesize)
-    pointer.write_string(bytes)
+    # unwrap ZeroingDelegator if present
+    bytes = bytes.to_str
 
-    # use the ZeroingDelegator finalizer to wipe the memory from our
-    # pointer, and attach our own finalizer to free() the memory
+    # allocate enough memory on the heap to store the bytes
+    pointer = Sodium::FFI::LibC.calloc(1, bytes.bytesize)
+
+    # use the ZeroingDelegator helper methods to prevent the pointer
+    # from being swapped to disk, to wipe its memory on garbage
+    # collection, and to attach our own finalizer to free() the memory
+    # on garbage collection as well
+    ZeroingDelegator._mlock!          pointer, bytes.bytesize
     ZeroingDelegator._finalize! self, pointer, bytes.bytesize,
       &self.class._finalizer(pointer, bytes.bytesize)
+
+    # now that the pointer can't be swapped out to disk, it is safe to
+    # write memory contents to it
+    pointer.write_string(bytes)
 
     # zero out the bytes passed to us, since we can't control their
     # lifecycle
@@ -70,10 +77,10 @@ class Sodium::Buffer
     # so that there is a cyclic dependency between the buffer and the
     # pointer; if either is still live in the current scope, it is
     # enough to prevent the other from being collected. We create the
-    # new pointer since the previous pointer is pointed to by our
-    # finalizer; if we didn't, its existence in the finalizer proc
-    # would keep us from being garbage collected because of its
-    # pointer to us!
+    # new pointer since the existing pointer is referenced by the
+    # finalizer; if we didn't, its reference in the finalizer proc
+    # would keep us from being garbage collected because it holds a
+    # pointer to us.
     @bytesize = bytes.bytesize
     @bytes    = FFI::Pointer.new(pointer.address)
     @bytes.instance_variable_set(:@_sodium_buffer, self)
