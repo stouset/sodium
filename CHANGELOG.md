@@ -1,7 +1,8 @@
 ### (unreleased)
 
-- Bug Fixes
+- Security
   * mlock() called on the pointer allocated by Sodium::Buffer
+  * Sodium::Buffer#to_s#== compares in constant time
 
 ### 0.7.1 (2013-07-19)
 

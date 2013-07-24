@@ -90,16 +90,7 @@ class Sodium::Buffer
   end
 
   def ==(bytes)
-    bytes = Sodium::Buffer.new(bytes)
-
-    return false unless
-      self.bytesize == bytes.bytesize
-
-    Sodium::FFI::Crypto.sodium_memcmp(
-      self .to_ptr,
-      bytes.to_ptr,
-      bytes.bytesize
-    ) == 0
+    self.to_s == Sodium::Buffer.new(bytes)
   end
 
   def +(bytes)
@@ -221,6 +212,17 @@ class Sodium::Buffer::ZeroingDelegator
     self.__setobj__(string)
     self.__getobj__.freeze
     self           .freeze
+  end
+
+  def ==(other)
+    return false unless
+      self.bytesize == other.bytesize
+
+    Sodium::FFI::Crypto.sodium_memcmp(
+      self.__getobj__,
+      other,
+      other.bytesize
+    ) == 0
   end
 
   def to_s
