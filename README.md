@@ -123,10 +123,10 @@ Fork, commit, push. Submit pull request. When possible, try and follow existing 
 [rubydoc-badge]:     :(
 [rubydoc-url]:       http://rubydoc.org/gems/sodium/frames
 
-[example-symmetric-encryption]:     examples/TODO
-[example-symmetric-authenticators]: examples/TODO
-[example-asymmetric-encryption]:    examples/TODO
-[example-asymmetric-signatures]:    examples/TODO
+[example-symmetric-encryption]: https://github.com/cryptosphere/rbnacl/wiki/Secret-Key-Encryption
+[example-symmetric-authenticators]: https://github.com/cryptosphere/rbnacl/wiki/Authenticators
+[example-asymmetric-encryption]: https://github.com/cryptosphere/rbnacl/wiki/Public-Key-Encryption
+[example-asymmetric-signatures]: https://github.com/cryptosphere/rbnacl/wiki/Digital-Signatures
 
 [gpg-key]: certs/sodium@touset.org.pub.gpg
 
